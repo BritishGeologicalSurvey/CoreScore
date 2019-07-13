@@ -1,4 +1,6 @@
-# Core_Analyses_Project
-BGS Core Processing Program
+# Core Analyses Project
+BGS Core Processing workflow
 
-Project using OpenCV to detect edges from BGS core- currently includes several examples to test and small OpenCV gui elements to change contouring parameters and edges. 
+Project updated to include the machine learning workflow for segmentation as well as the various other workflows that follow
+
+There are several files some of which are used to generate the masks that are then used to train the model and the rest are used to also get the areas from the core after its processed
