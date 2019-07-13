@@ -10,6 +10,10 @@ A total of 33 training images were used- 4 of which were used for validation thr
 
 The images are then put into the machine learning model and predictions are then made based on what it has previously learnt, example of the ML output (Through segmentation and Unet as implemented in fastai)
 
+The example below is of a prediction on an untrained example:
+
+![Example of image processed through unet](Images/S00128821.Cropped_Top_2_resized.png)
+
 ![Example of image processed through unet](Images/OutputFromML.png)
 
 The final output from the images themselves looks like what is below- with varying accuracies depending on how well the mask worked
