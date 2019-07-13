@@ -18,3 +18,10 @@ The example below is of a prediction on an untrained example:
 
 The final output from the images themselves looks like what is below- with varying accuracies depending on how well the mask worked
 ![Example of fully processed image](Images/S00128821.Cropped_Top_2_Countoured.png)
+
+***
+
+***Dependancies***
+OpenCV Above 3.4 - This is for the computer vision parts - segmentation and masking etc.. 
+
+FastAi - which is built on pytorch - setup uses Salamander.Ai - most of the needed libraries come pre-installed - this is to recreate the machine learning parts - the code should run assuming you have all the needed training files in the right directories
