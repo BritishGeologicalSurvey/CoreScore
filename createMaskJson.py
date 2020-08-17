@@ -5,29 +5,32 @@ Created on Sun Jun 16 16:31:12 2019
 
 @author: ziad
 """
-
+import os
 import glob
 import re
-from PIL import Image, ImageDraw
-import os
-import numpy as np
+import logging
 import json
+
+from PIL import Image, ImageDraw
+import numpy as np
 import matplotlib.pyplot as plt
 import cv2 as cv
 from pathlib import Path
 from scipy.ndimage.interpolation import rotate
 
-with open("Core_labels4.json", 'r') as f:
-    core_types = json.load(f)
-
 # Sklearn resiez image libraries
 from skimage import io
 from skimage.transform import resize
 from skimage import img_as_bool
-import scipy.misc
+from skimage.io import imsave
 
 import random
 from collections import OrderedDict
+
+logging.basicConfig(level=logging.INFO)
+
+with open("Core_labels.json", 'r') as f:
+    core_types = json.load(f)
 
 # This file does all the pre-processing from the json and into actual masks
 # which then can be used directly with the unet implementation in fastai
@@ -58,10 +61,9 @@ class coreImageProcessor():
         somewhere but at the moment there isnt enough classes to warrant a
         larger file'''
 
-        self.path = os.fspath(Path(imageDirectory))
+        #self.path = os.fspath(Path(imageDirectory))
+        self.path = imageDirectory
         self.maskDir = Path(imageDirectory + "/train/")
-        print(self.maskDir)
-        print(self.path)
         self.dicto_ = OrderedDict({"Box": [0, 0], "Rock_Fragment": [1, 1], "Paper": [
                                   2, 2], "Core_Plug": [3, 3], "Text": [4, 4]})
 
@@ -186,7 +188,6 @@ class coreImageProcessor():
         originalH = height
         originalW = width
         self.mask = self.persistentMask(originalW, originalH)
-        print(fp)
         for i in range(10):
             newImg = self.extractRGBVals(key, img, blank, newImg)
 
@@ -194,7 +195,6 @@ class coreImageProcessor():
             while height != originalH:
                 fp, img, width, height, blank = self.setupImage()
             key = self.getKey(fp)
-            print(fp)
         randomString = ''.join(random.sample(fp, len(fp)))
         self.saveMask(self.path + "/train/" + randomString + ".", newImg)
         self.saveMask(
@@ -210,7 +210,6 @@ class coreImageProcessor():
 
     def extractRGBVals(self, fp, img, blank, newImg, resize=False):
 
-        #        print(type(oneMask))
         y, x, z = (img.shape)
         print(x, y)
         shape = self.genShape(self.dicto_, fp)
@@ -270,6 +269,8 @@ class coreImageProcessor():
         neccecary except for the random images'''
         img = self.openImage(self.path + "/train/" +
                              str(self.getImageNames(fp)[:-4]) + "png")
+        if not img.any():
+            return
         width = img.shape[1]
         height = img.shape[0]
         blank = self.makeBlankImage(width, height)
@@ -282,16 +283,17 @@ class coreImageProcessor():
         shape = self.genShape(self.dicto_, fp)
 #        self.genConvexPoly(shape,img)
 #        print(self.translateShape(shape,self.getMinShape(shape)))
-        self.saveMask(self.path + "/train_masks/" +
-                      str(self.getImageNames(fp))[:-4], mask)
+        filename = self.getImageNames(fp)
+        filename = filename.replace('JPEG', '')
+        img_path = os.path.join(os.getcwd(), self.path, "train_masks", filename)
+        logging.info(img_path)
+        self.saveMask(img_path, mask)
 
     def genConvexPoly(self, shape, img):
         '''Not actually used'''
         coords = self.getMaxShape(shape)
         blank = np.zeros((coords[0], coords[1]))
         shape = np.array(shape)
-        print(coords)
-        print(shape)
         cv.fillConvexPoly(blank, shape, 1)
 
         blank = blank.astype(np.bool)
@@ -305,8 +307,12 @@ class coreImageProcessor():
         - also assumes that the image being opened is a jpeg
         (since thats what we're using here)
         '''
-        rgbImage = Image.open(image)
-        rgbImage = np.array(rgbImage)
+        rgbImage = np.empty(0)
+        try:
+            rgbImage = Image.open(image)
+            rgbImage = np.array(rgbImage)
+        except FileNotFoundError:
+            logging.info(f"no image at {image}")
         return rgbImage
 
     def PolyArea(self, x, y):
@@ -330,7 +336,6 @@ class coreImageProcessor():
         for key, values in dicto.items():
             try:
                 for geometry in fp["Label"][key]:
-                    #                    print(key)
                     shape = self.getXY(*geometry['geometry'])
                     try:
                         shapes[key].append(shape)
@@ -402,42 +407,36 @@ class coreImageProcessor():
         return np.array(img)
 
     def genMasks(self, dicto, img, fp):
-        '''Very questionable method for making the masks -
-        entire codeblock should be reworked - removing the try
-        except method - currently like this because not all images
-        are labelled'''
-
+        """Write masks into the images using the labelled shapes"""
+        image = img
         for key, values in dicto.items():
-            try:
+            if key in fp["Label"]:
                 for geometry in fp["Label"][key]:
                     shape = self.getXY(*geometry['geometry'])
-                    ImageDraw.Draw(img).polygon(
+                    logging.debug(shape)
+                    ImageDraw.Draw(image).polygon(
                         shape, outline=values[0], fill=values[1])
-            except BaseException:
-                print("Shape not in labelled object")
 
-        return np.array(img)
+        return np.array(image)
 
     def getXY(self, *args):
         '''returns the xy locations for a certain shape/class type'''
         shape = []
-
         for i in args:
-            if isinstance(i, None):
-                pass
-            else:
-                shape.append((i['x'], i['y']))
+            shape.append((i['x'], i['y']))
 
         return shape
 
     def saveMask(self, fname, mask, ext='png'):
         '''Uses scipy to save the img as a png - method going to be
         removed from the next scipy version - need to find workaround'''
-        scipy.misc.imsave(fname + ext, mask)
+        if not os.path.isdir(os.path.dirname(fname)):
+            os.makedirs(os.path.dirname(fname))
+        imsave(fname + ext, mask)
 
 
 coreProcessor = coreImageProcessor(
-    "/home/ziad/Documents/Deep_Learning/unet/Unet_Core/data/")
+    "Images")
 # print(coreProcessor.generateLotsofRandomImages())
 # print(core_types.keys())
 for key in core_types:

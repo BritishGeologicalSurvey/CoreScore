@@ -28,7 +28,7 @@ import urllib.request
 import json
 
 
-with open("Core_labels4.json", 'r') as f:
+with open("Core_labels.json", 'r') as f:
     core_types = json.load(f)
 
 
