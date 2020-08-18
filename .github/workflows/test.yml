@@ -1,0 +1,19 @@
+name: Run tests
+on: push
+
+jobs:
+  test:
+    # Containers must run in Linux based operating systems
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: run the API tests
+        run: |
+          pip3 install setuptools>=42.0.0 wheel scikit-build
+          # pip3 install tensorflow==1.14.0
+          pip3 install -r requirements.txt
+          pip3 install pytest
+          export PYTHONPATH=.:..
+          python3 -m pytest -vs
