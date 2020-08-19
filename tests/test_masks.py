@@ -25,6 +25,7 @@ def test_load_processor(image_dir, labels):
     assert len(coreProcessor.core_types)
     for image in coreProcessor.core_types:
         mask_file = coreProcessor.processImage(image)
-        im_arr = imread(mask_file)
+        im_arr = imread(mask_file).flatten()
+        has_data = im_arr.all()
         # Test if mask is blank
-        assert im_arr.flatten().all()
+        assert has_data
