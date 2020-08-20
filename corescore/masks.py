@@ -6,23 +6,12 @@ Created on Sun Jun 16 16:31:12 2019
 @author: ziad
 """
 import os
-import glob
-import re
 import logging
 import json
 from pathlib import Path
-import random
-from collections import OrderedDict
 
 from PIL import Image, ImageDraw
 import numpy as np
-import matplotlib.pyplot as plt
-import cv2 as cv
-from scipy.ndimage.interpolation import rotate
-
-from skimage import io
-from skimage.transform import resize
-from skimage import img_as_bool
 from skimage.io import imsave
 
 logging.basicConfig(level=logging.INFO)
@@ -30,13 +19,6 @@ logging.basicConfig(level=logging.INFO)
 
 # This file does all the pre-processing from the json and into actual masks
 # which then can be used directly with the unet implementation in fastai
-# a lot of the code is not needed - some is used to create synthetic datasets
-# Should probably be re-written in the long run- a lot of the functions do
-# Similar things
-# Import image with PIL and then get the bands - i.e. shape + rgb
-#IMAGE = "S00128906.Cropped_Top_2.JPEG"
-CMAP = "tab20"
-RESIZE_SIZE = (89, 629)
 
 
 class CoreImageProcessor():
@@ -51,22 +33,30 @@ class CoreImageProcessor():
         Class takes in the image directory as a string
     '''
 
-    def __init__(self, imageDirectory, labels="Core_labels.json"):
-        '''Takes an image directory - and prepares the dictionary for
-        creating the masks, ideally the dictionary will be stored in a json
-        somewhere but at the moment there isnt enough classes to warrant a
-        larger file'''
+    # Map of greyscale colours to use as masks
+    masks = {"Box": 255,
+             "Rock_Fragment": 200,
+             "Paper": 160,
+             "Core_Plug": 100,
+             "Text": 42}
 
-        #self.path = os.fspath(Path(imageDirectory))
-        self.path = imageDirectory
+    def __init__(self, imageDirectory,
+                 labels="Core_labels.json",
+                 mask_labels=["Rock_Fragment"]):
+        """Takes an image directory,
+        a set of associated labels,
+        and optional list of labels to use for masks
+        (defaults to "Rock_Fragment")
+        """
+
+        self.path = os.fspath(Path(imageDirectory))
         self.maskDir = Path(imageDirectory + "/train/")
         with open(labels, 'r') as f:
             self.core_types = json.load(f)
-        self.dicto_ = OrderedDict({"Box": [0, 0], "Rock_Fragment": [1, 1], "Paper": [
-                                  2, 2], "Core_Plug": [3, 3], "Text": [4, 4]})
+        self.mask_labels = mask_labels
 
     def getImageNames(self, key):
-        '''returns image name'''
+        """Returns image name from LabelBox compat data"""
         return key['External ID']
 
     def generateShapes(self, blankImage, shape, values):
@@ -74,41 +64,9 @@ class CoreImageProcessor():
         returns it into a mask format'''
         return self.genOneMask(blankImage, shape, values)
 
-    def rotateMask(self, blankImage, mask, originalImage, rotation):
-        '''Function used to rotate everything - used to increase
-        randomness in synthetic dataset - works but not so well'''
-        blankImage = rotate(blankImage, rotation)
-        mask = rotate(mask, rotation)
-        originalImage = rotate(originalImage, rotation)
-        return blankImage, mask, originalImage
-
-    def genRandomColour(self):
-        """Returns a random colour in the RGB Spectrum"""
-        colour = list(np.random.choice(range(256), size=3))
-        return colour
-
-    def getNumPiecesInBox(self, shape_type, dicto):
-        '''returns the number of items of a certain class i.e. rock paper plug
-        etc that lie within a certain labelled image'''
-        return len(dicto[shape_type])
-
-    def getRandomPiece(self, shape_type, shapes, blank):
-        '''returns a random piece from the dictionary'''
-        randomPiece = (
-            np.random.randint(
-                0, self.getNumPiecesInBox(
-                    shape_type, shapes)))
-        Onemask = self.genOneMask(
-            blank,
-            shapes[shape_type][randomPiece],
-            (self.dicto_[shape_type][0],
-             self.dicto_[shape_type][1]))
-        return Onemask, shapes[shape_type][randomPiece]
-
     def makeBlankCanvas(self, width=6000, height=1200):
         '''makes a blank image to fill in with random data'''
         blank = self.makeBlankImage(width, height)
-
         return blank
 
     def getAllImages(self):
@@ -118,149 +76,6 @@ class CoreImageProcessor():
             if key['Reviews'][0]['score'] >= 1:
                 images.append(self.getImageNames(key))
         return images
-
-    def addNoise(self, image):
-        '''add chaos to a given image - randomness values are hardcoded'''
-        row, col, ch = image.shape
-        s_vs_p = 0.5
-        amount = 0.9
-        out = np.copy(image)
-        # Salt mode
-        num_salt = np.ceil(amount * image.size * s_vs_p)
-        coords = [np.random.randint(0, i - 1, int(num_salt))
-                  for i in image.shape]
-        out[coords] = 1
-
-      # Pepper mode
-        num_pepper = np.ceil(amount * image.size * (1. - s_vs_p))
-        coords = [np.random.randint(0, i - 1, int(num_pepper))
-                  for i in image.shape]
-        out[coords] = 0
-        return out
-
-    def makeNewImage(self, image):
-        '''makes a new image with noise - based on the dimensions of another
-        input image - needs to be done so that the images come out same size
-        with similar aspect ratios - basically we can only generate random
-        images if all of the pieces come from the same size image'''
-        newImage = np.zeros(image.shape)
-        newImage = np.random.random(image.shape)
-        newImage[:, :] = self.genRandomColour()
-        newImage = self.addNoise(newImage)
-
-        return newImage
-
-    def getRandomImage(self):
-        '''returns a random image from all the labelled images'''
-        images = self.getAllImages()
-        return np.random.choice(images)
-
-    def setupImage(self, makeBlank=False):
-        '''setup an image for creating a random one'''
-        fp = self.getRandomImage()
-        img = self.openImage(self.path + "/train/" + fp)
-        width = img.shape[1]
-        height = img.shape[0]
-        blank = self.makeBlankImage(width, height)
-        if makeBlank:
-            blank = self.makeBlankImage(width, height)
-            newImg = self.makeNewImage(img)
-            return fp, img, newImg, width, height, blank
-        return fp, img, width, height, blank
-
-    def getKey(self, name):
-        '''returns the key given image name'''
-        for key in self.core_types:
-            if self.getImageNames(key) == name:
-                return key
-
-    def generateLotsofRandomImages(self):
-        '''generates 10 random images'''
-        for i in range(10):
-            self.makeRandomImages()
-
-    def makeRandomImages(self):
-        '''makes a random image'''
-        fp, img, newImg, width, height, blank = self.setupImage(makeBlank=True)
-        key = self.getKey(fp)
-        originalH = height
-        originalW = width
-        self.mask = self.persistentMask(originalW, originalH)
-        for i in range(10):
-            newImg = self.extractRGBVals(key, img, blank, newImg)
-
-            fp, img, width, height, blank = self.setupImage()
-            while height != originalH:
-                fp, img, width, height, blank = self.setupImage()
-            key = self.getKey(fp)
-        randomString = ''.join(random.sample(fp, len(fp)))
-        self.saveMask(self.path + "/train/" + randomString + ".", newImg)
-        self.saveMask(
-            self.path +
-            "/train_masks/" +
-            randomString +
-            ".",
-            self.mask)
-        plt.imshow(newImg / 255)
-
-    def getRandomPieces(self, fps):
-        pass
-
-    def extractRGBVals(self, fp, img, blank, newImg, resize=False):
-
-        y, x, z = (img.shape)
-        print(x, y)
-        shape = self.genShape(self.dicto_, fp)
-
-        oneMask, randomPiece = self.getRandomPiece(
-            'Rock_Fragment', shape, blank)
-        if resize is True:
-            shape = self.genShape(self.dicto_, fp)
-
-            oneMask = self.getRandomPiece('Rock_Fragment', shape, blank)
-            oneMask = np.ma.resize(oneMask, (y, x))
-
-        # Convert the image to a 0-255 scale.
-            rescaled_image = 255 * img
-        # Convert to integer data type pixels.
-            img = rescaled_image.astype(np.uint8)
-            #newImg = cv.resize(newImg,(x,y),interpolation=cv.INTER_CUBIC)
-#            oneMask = resize(oneMask,(img.shape[0],img.shape[1]))
-        mask = oneMask == 1
-
-
-#        newImage,mask,img = self.rotateMask(newImg,mask,img,np.random.choice([0,180]))
-
-        newImg[mask] = img[mask]
-        print(randomPiece)
-        randomNumber = np.random.randint(0, 6000)
-        self.mask = self.genOneMask(self.mask, randomPiece, (1, 2))
-#        print(self.getMinShape(randomPiece))
-#        self.mask = self.shift(self.mask,randomNumber)
-#        newImg = self.shift(newImage,randomNumber)
-        # Need to do this to make the plotting work
-
-#        plt.savefig("Mask_Test.pdf",figsize=(40,20))
-#        print(mask)
-        return newImg
-
-    def persistentMask(self, width, height):
-        self.mask = self.makeBlankImage(width, height)
-        return self.mask
-
-    def transformMask(self, mask, number):
-        '''move the mask - uses shift'''
-
-        return self.shift(mask, number)
-
-    def shift(self, arr, num):
-        '''shift a mask by a given number'''
-        arr = np.roll(arr, num)
-        if num < 0:
-            np.put(arr, range(len(arr) + num, len(arr)), np.nan)
-        elif num > 0:
-            np.put(arr, range(num), np.nan)
-        return arr
 
     def processImage(self, fp):
         '''Main process to generate the masks - all the rest are not really
@@ -274,37 +89,19 @@ class CoreImageProcessor():
         height = img.shape[0]
         blank = self.makeBlankImage(width, height)
 
-#        rgbImageResized = resize(img, RESIZE_SIZE)
-#        self.saveMask(rgbImageResized,self.path+"/train/"+str(fp))
-#        print(type(fp))
-
-        mask = self.genMasks(self.dicto_, blank, fp)
-#        resizedMask = resize(mask, RESIZE_SIZE)
-#        self.saveMask(self.path+"/train_masks/"+fp[:-4],resizedMask)
-#        shape = self.genShape(self.dicto_, fp)
-#        self.genConvexPoly(shape,img)
-#        print(self.translateShape(shape,self.getMinShape(shape)))
+        mask = self.genMasks(blank, fp)
 
         filename = self.getImageNames(fp)
         suffix = filename.split('.')[-1]
-        filename = filename.replace(suffix, '.png')
-        img_path = os.path.join(os.getcwd(), self.path, "train_masks", filename)
+        filename = filename.replace(suffix, 'png')
+        img_path = os.path.join(
+                        os.getcwd(),
+                        self.path,
+                        "train_masks",
+                        filename)
         logging.info(img_path)
         self.saveMask(img_path, mask)
         return img_path
-
-    def genConvexPoly(self, shape, img):
-        '''Not actually used'''
-        coords = self.getMaxShape(shape)
-        blank = np.zeros((coords[0], coords[1]))
-        shape = np.array(shape)
-        cv.fillConvexPoly(blank, shape, 1)
-
-        blank = blank.astype(np.bool)
-        img = resize(img, (coords[0], coords[1]))
-        out = np.zeros_like(img)
-        out[blank] = img[blank]
-        cv.imwrite('output.png', out)
 
     def openImage(self, image):
         '''Opens an image and makes it into a numpy array
@@ -317,25 +114,19 @@ class CoreImageProcessor():
             logging.info(f"no image at {image}")
         return rgbImage
 
-    def PolyArea(self, x, y):
-        '''
-        Calculate area of polygon using shoelace formula in numpy
-        '''
-        return 0.5 * np.abs(np.dot(x, np.roll(y, 1)) -
-                            np.dot(y, np.roll(x, 1)))
-
     def makeBlankImage(self, width, height):
-        ''' Generate an image with all 0s in the arrays for a given width/height'''
+        """Generate an image with all 0s
+        in the arrays for a given width/height"""
         img = Image.new('L', (width, height), 0)
         return img
 
-    def genShape(self, dicto, fp):
+    def genShape(self, fp):
         '''Similar to the genMasks function but
         instead returns the shape instead of the mask of
         the image - this is useful for manipulating the geometry
         and or translating the shape afterwards'''
         shapes = {}
-        for key, values in dicto.items():
+        for key in self.masks:
             try:
                 for geometry in fp["Label"][key]:
                     shape = self.getXY(*geometry['geometry'])
@@ -344,81 +135,19 @@ class CoreImageProcessor():
                     except BaseException:
                         shapes[key] = [shape]
             except BaseException:
-                print("No " + key + " in labelled object")
+                logging.info("No " + key + " in labelled object")
         return shapes
 
-    def getMinShape(self, shape):
-        '''Get minimum value in shape -
-        essentially a helper function for the translation'''
-        minX = None
-        minY = None
-        for value in shape:
-            if minX is None:
-                minX = value[0]
-                minY = value[1]
-            elif minX > value[0]:
-                minX = value[0]
-                if minY > value[1]:
-                    minY = value[1]
-            elif minY > value[1]:
-                minY = value[1]
-            else:
-                pass
-        return (minX, minY)
-
-    def getMaxShape(self, shape):
-        '''returns the maximum values in a shape - so the farthest locations
-        for a given shape'''
-        maxX = None
-        maxY = None
-        for value in shape:
-            if maxX is None:
-                maxX = value[0]
-                maxY = value[1]
-            elif maxX < value[0]:
-                maxX = value[0]
-                if maxY < value[1]:
-                    maxY = value[1]
-            elif maxY < value[1]:
-                maxY = value[1]
-            else:
-                pass
-        return (maxX, maxY)
-
-    def translateShape(self, shape):
-        '''Translate the shape in order to have all
-        the shapes start at 0,0 origin, this will ensure that while
-        generating synthetic datasets that they are relatively well
-        aligned'''
-        minVal = self.getMinShape(shape)
-        tfd_Shape = []
-        for value in shape:
-            tfd_Shape.append(((value[0] - minVal[0]), (value[1] - minVal[1])))
-        return tfd_Shape
-
-    def genOneMask(self, img, shape, values):
-        '''generates one mask instead of many - used for creating random images'''
-        try:
-            ImageDraw.Draw(img).polygon(
-                shape, outline=values[0], fill=values[1])
-        except BaseException:
-            print("Drawing mask failed, trying from array")
-            img = Image.fromarray(img)
-            ImageDraw.Draw(img).polygon(
-                shape, outline=values[0], fill=values[1])
-        return np.array(img)
-
-    def genMasks(self, dicto, img, fp):
+    def genMasks(self, img, fp):
         """Write masks into the images using the labelled shapes"""
         image = img
-        for key, values in dicto.items():
-            if key in fp["Label"]:
+        draw = ImageDraw.Draw(image)
+        for key, value in self.masks.items():
+            if key in fp["Label"] and key in self.mask_labels:
                 for geometry in fp["Label"][key]:
                     shape = self.getXY(*geometry['geometry'])
                     logging.debug(shape)
-                    ImageDraw.Draw(image).polygon(
-                        shape, outline=values[0], fill=values[1])
-
+                    draw.polygon(shape, outline=value, fill=value)
         return np.array(image)
 
     def getXY(self, *args):
