@@ -1,5 +1,13 @@
 # Core Analyses Project
-BGS Core Processing workflow
+
+## Installation notes
+
+```
+pip install ipywidgets
+jupyter nbextension enable --py widgetsnbextension
+```
+
+## BGS Core Processing workflow
 
 First of all why do this? Essentially classical edge detection workflows do not work very well on images that are not pre-processed or taken in a way where there is good contrast. Picking the right threshold value is also tedious and can take some time, even contouring and finding the correct contours needs to be done per image for optimal results. 
 ![Example of Canny Edge detection](Images/S00128804.Cropped_Top_2.gif)
