@@ -2,6 +2,21 @@
 
 ## Installation notes
 
+Install pytroch and fastai from conda:
+
+```
+conda install pytorch torchvision cudatoolkit=10.2 -c pytorch
+conda install -c fastai -c pytorch fastai
+```
+
+Other dependencies via pip
+
+```
+pip install -r requirements.txt
+```
+
+The notebook includes an animated progressbar for which we need `ipywidgets` enabled
+
 ```
 pip install ipywidgets
 jupyter nbextension enable --py widgetsnbextension
