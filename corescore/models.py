@@ -11,12 +11,15 @@ import warnings
 #from fastai.vision import models
 from fastai.vision.all import *
 
+import mlflow.fastai
 import torch
 from torchvision import transforms
 import matplotlib.pyplot as plt
 import numpy as np
 from corescore.masks import LABELS
 
+
+mlflow.fastai.autolog()
 
 class CoreModel():
     def __init__(self, path):
