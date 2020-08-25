@@ -9,4 +9,4 @@ def test_create_model():
 
 def test_version():
     major = fastai.__version__.split('.')[0]
-    assert int(major) > 1
+    assert int(major) == 1

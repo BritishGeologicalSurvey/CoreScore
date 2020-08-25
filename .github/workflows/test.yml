@@ -19,6 +19,7 @@ jobs:
           pip3 install -r requirements.txt
           pip3 install pytest
           export PYTHONPATH=.:..
+          echo 'fastai 1.*' >> $CONDA_PREFIX/conda-meta/pinned
           conda install pytorch torchvision cudatoolkit=10.2 -c pytorch
           conda install -c fastai -c pytorch fastai
           python3 -m pytest -vs

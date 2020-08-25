@@ -22,10 +22,16 @@ from corescore.masks import LABELS
 mlflow.fastai.autolog()
 
 class CoreModel():
-    def __init__(self, path):
+
+    def __init__(self, path, batch_size=1, wd=1e-2,
+                 epochs=10, pct_start=0.9):
         path = Path(path)
         self.path_lbl = path / 'Images/train_masks'
         self.path_img = path / 'Images/train'
+        self.batch_size = batch_size
+        self.wd = wd
+        self.pct_start = pct_start
+        self.epochs = epochs
 
 #src_size / 6
 #array([ 148., 1048.])
@@ -39,10 +45,27 @@ class CoreModel():
         self.data = self.image_src().transform(get_transforms(),
                                                size=reduce_size,
                                                tfm_y=True)
-        self.data.databunch(bs=batch_size, num_workers=0) # set 0 to avoid ForkingPickler pipe error in Windows
+        self.data.databunch(bs=self.batch_size, num_workers=0) # set 0 to avoid ForkingPickler pipe error in Windows
         self.data.normalize(imagenet_stats)
 
     def learner(self):
-        self.learn = unet_learner(data, models.resnet34, metrics=metrics, wd=wd)
+        def acc_rock(input, target):
+            target = target.squeeze(1)
+            mask = target != LABELS.index("Void")
+            return (input.argmax(dim=1)[mask]==target[mask]).float().mean()
+
+        metrics = acc_rock
+        self.learn = unet_learner(data, models.resnet34, metrics=metrics, wd=self.wd)
         self.learn.model = torch.nn.DataParallel(learn.model)
         self.learn.lr_find()
+
+    def fit(self):
+        # TODO fix this to use the model's discovered LR
+        lr = 5.20E-05
+        self.learner().fit_one_cycle(self.epochs,
+                                     slice(lr),
+                                     pct_start=self.pct_start)
+
+    def save(self):
+        # TODO save via MLFLow
+        pass
