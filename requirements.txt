@@ -1,4 +1,5 @@
 numpy
+mlflow
 opencv-python
 Pillow
 scipy
