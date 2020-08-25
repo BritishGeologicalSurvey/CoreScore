@@ -19,6 +19,7 @@ logging.basicConfig(level=logging.INFO)
 
 # This file does all the pre-processing from the json and into actual masks
 # which then can be used directly with the unet implementation in fastai
+LABELS = ['Box', 'Rock_Fragment', 'Paper', 'Core_Plug', 'Text', 'Void']
 
 
 class CoreImageProcessor():
@@ -34,15 +35,11 @@ class CoreImageProcessor():
     '''
 
     # Map of greyscale colours to use as masks
-    masks = {"Box": 255,
-             "Rock_Fragment": 200,
-             "Paper": 160,
-             "Core_Plug": 100,
-             "Text": 42}
+    masks = {value: index for (index, value) in enumerate(LABELS)}
 
     def __init__(self, imageDirectory,
                  labels="Core_labels.json",
-                 mask_labels=["Rock_Fragment"]):
+                 mask_labels=[]):
         """Takes an image directory,
         a set of associated labels,
         and optional list of labels to use for masks
@@ -53,7 +50,10 @@ class CoreImageProcessor():
         self.maskDir = Path(imageDirectory + "/train/")
         with open(labels, 'r') as f:
             self.core_types = json.load(f)
-        self.mask_labels = mask_labels
+        if mask_labels:
+            self.mask_labels = mask_labels
+        else:
+            self.mask_labels = LABELS
 
     def getImageNames(self, key):
         """Returns image name from LabelBox compat data"""
