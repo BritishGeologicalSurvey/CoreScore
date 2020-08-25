@@ -9,6 +9,12 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v2
 
+	  - name: Try anaconda
+        uses: actions/checkout@v2
+        uses: s-weigand/setup-conda@v1
+        run: conda --version
+        run: which python
+
       - name: run the API tests
         run: |
           pip3 install setuptools>=42.0.0 wheel scikit-build
