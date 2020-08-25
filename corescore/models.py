@@ -51,13 +51,13 @@ class CoreModel():
                                                tfm_y=True).databunch(bs=self.batch_size, num_workers=0).normalize(imagenet_stats) # hmm
         return self.data
 
-    def learner(self):
-        def acc_rock(input, target):
-            target = target.squeeze(1)
-            mask = target != LABELS.index("Void")
-            return (input.argmax(dim=1)[mask]==target[mask]).float().mean()
+    def acc_rock(self, input, target):
+        target = target.squeeze(1)
+        mask = target != LABELS.index("Void")
+        return (input.argmax(dim=1)[mask]==target[mask]).float().mean()
 
-        metrics = acc_rock
+    def learner(self):
+        metrics = self.acc_rock
         self.learn = unet_learner(self.image_data(), models.resnet34, metrics=metrics, wd=self.wd)
         self.learn.model = torch.nn.DataParallel(self.learn.model)
         self.learn.lr_find()
