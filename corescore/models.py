@@ -71,4 +71,11 @@ class CoreModel():
 
     def save(self):
         # TODO save via MLFLow
-        pass
+        self.learn.save('model')
+
+
+if __name__ == '__main__':
+    coremodel = CoreModel(os.getcwd())
+    coremodel.fit()
+    coremodel.save()
+
