@@ -48,9 +48,8 @@ class CoreModel():
     def image_data(self):
         self.data = self.image_src().transform(get_transforms(),
                                                size=self.reduce_size,
-                                               tfm_y=True)
-        bunch = self.data.databunch(bs=self.batch_size, num_workers=0) # set 0 to avoid ForkingPickler pipe error in Windows
-        bunch.normalize(imagenet_stats)
+                                               tfm_y=True).databunch(bs=self.batch_size, num_workers=0).normalize(imagenet_stats) # hmm
+        return self.data
 
     def learner(self):
         def acc_rock(input, target):
@@ -60,7 +59,7 @@ class CoreModel():
 
         metrics = acc_rock
         self.learn = unet_learner(self.image_data(), models.resnet34, metrics=metrics, wd=self.wd)
-        self.learn.model = torch.nn.DataParallel(learn.model)
+        self.learn.model = torch.nn.DataParallel(self.learn.model)
         self.learn.lr_find()
 
     def fit(self):
