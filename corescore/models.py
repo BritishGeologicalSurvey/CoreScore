@@ -37,3 +37,8 @@ class CoreModel():
                                                tfm_y=True)
         self.data.databunch(bs=batch_size, num_workers=0) # set 0 to avoid ForkingPickler pipe error in Windows
         self.data.normalize(imagenet_stats)
+
+    def learner(self):
+        self.learn = unet_learner(data, models.resnet34, metrics=metrics, wd=wd)
+        self.learn.model = torch.nn.DataParallel(learn.model)
+        self.learn.lr_find()
