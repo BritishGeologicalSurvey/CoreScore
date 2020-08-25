@@ -3,13 +3,13 @@ from pathlib import Path
 from functools import partial
 CUDA_LAUNCH_BLOCKING="1"  # better error reporting
 import warnings
-#from fastai.vision import imagenet_stats, DatasetType
-#from fastai.vision.data import get_image_files, SegmentationItemList
-#from fastai.vision.image import open_mask
-#from fastai.vision.learner import unet_learner
-#from fastai.vision.transform import get_transforms
-#from fastai.vision import models
-from fastai.vision.all import *
+from fastai.vision import imagenet_stats, DatasetType
+from fastai.vision.data import get_image_files, SegmentationItemList
+from fastai.vision.image import open_mask
+from fastai.vision.learner import unet_learner
+from fastai.vision.transform import get_transforms
+from fastai.vision import models
+#from fastai.vision.all import *
 
 import mlflow.fastai
 import torch
@@ -19,7 +19,10 @@ import numpy as np
 from corescore.masks import LABELS
 
 
+
+URI = 'http://hwlc7-vyron.bgslcdevops.test:5000'
 mlflow.fastai.autolog()
+mlflow.set_tracking_uri(URI)
 
 class CoreModel():
 
