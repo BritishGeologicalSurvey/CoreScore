@@ -95,10 +95,10 @@ class CoreImageProcessor():
         suffix = filename.split('.')[-1]
         filename = filename.replace(suffix, 'png')
         img_path = os.path.join(
-                        os.getcwd(),
-                        self.path,
-                        "train_masks",
-                        filename)
+            os.getcwd(),
+            self.path,
+            "train_masks",
+            filename)
         logging.info(img_path)
         self.saveMask(img_path, mask)
         return img_path
