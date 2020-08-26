@@ -9,8 +9,10 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v2
 
-      - name: Use anaconda
-        uses: s-weigand/setup-conda@v1
+      - name: Setup Conda
+        uses: goanpeca/setup-miniconda@v1
+        with:
+          auto-update-conda: true
 
       - name: run the API tests
         run: |
@@ -19,7 +21,7 @@ jobs:
           pip3 install -r requirements.txt
           pip3 install pytest
           export PYTHONPATH=.:..
-          echo 'fastai 1.*' >> $CONDA_PREFIX/conda-meta/pinned
+          echo 'fastai 1.*' >> $CONDA/conda-meta/pinned
           conda install pytorch torchvision cudatoolkit=10.2 -c pytorch
           conda install -c fastai -c pytorch fastai
           python3 -m pytest -vs
