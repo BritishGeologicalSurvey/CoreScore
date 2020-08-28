@@ -20,7 +20,7 @@ def labels():
 
 
 def test_load_processor(image_dir, labels):
-    coreProcessor = CoreImageProcessor("Images", labels=labels)
+    coreProcessor = CoreImageProcessor(image_dir, labels=labels)
     # TODO store/move labels differently
     assert len(coreProcessor.core_types)
     for image in coreProcessor.core_types:

@@ -2,10 +2,16 @@
 
 ## Installation notes
 
-Install pytroch and fastai from conda:
+Install pytorch and torchvision from conda:
 
 ```
 conda install pytorch torchvision cudatoolkit=10.2 -c pytorch
+```
+
+We plan to move to fastai v2 when it becomes available in MLFlow; for now, one needs to pin the fastai version to 1 in the filei `conda_meta/pinned` in virtual environment.
+
+```
+echo 'fastai 1.*' >> $CONDA_PREFIX/conda-meta/pinned
 conda install -c fastai -c pytorch fastai
 ```
 
