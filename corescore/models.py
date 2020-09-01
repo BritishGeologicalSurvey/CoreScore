@@ -1,24 +1,21 @@
 import os
-import warnings
 from pathlib import Path
 from functools import partial
 
 import numpy as np
-import matplotlib.pyplot as plt
-from torchvision import transforms
 import torch
 import mlflow.fastai
 from fastai.vision import models
 from fastai.vision.transform import get_transforms
 from fastai.vision.learner import unet_learner
 from fastai.vision.image import open_mask
-from fastai.vision.data import get_image_files, SegmentationItemList
-from fastai.vision import imagenet_stats, DatasetType
-CUDA_LAUNCH_BLOCKING = "1"  # better error reporting
-# TODO move to v2 when MLFlow does
-#from fastai.vision.all import *
+from fastai.vision.data import SegmentationItemList
+from fastai.vision import imagenet_stats
 from corescore.masks import LABELS
 
+CUDA_LAUNCH_BLOCKING = "1"  # better error reporting
+# TODO move to v2 when MLFlow does
+# from fastai.vision.all import *
 
 URI = os.environ.get('MLFLOW_TRACKING_URI', '')
 mlflow.fastai.autolog()
@@ -36,7 +33,7 @@ class CoreModel():
         self.wd = wd
         self.pct_start = pct_start
         self.epochs = epochs
-        self.reduce_size = np.array([148, 1048])  # TODO derive from samples e.g. src_size / 6
+        self.reduce_size = np.array([148, 1048])  # TODO derive from samples e.g. src_size / 6 # noqa: E501
 
     def image_src(self):
         """Load images from self.path/images"""
