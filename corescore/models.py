@@ -73,14 +73,16 @@ class CoreModel():
         self.learn.model = torch.nn.DataParallel(self.learn.model)
         self.learn.lr_find()
 
-    def fit(self, lr=5.20E-05):
+    def fit(self, epochs=None, lr=5.20E-05):
         """Fit the model for N epochs (defaults to 10)
         with a learning rate (lr - defaults to %20.E.05
         """
         # TODO fix this to use the model's discovered LR
         if not lr:
             lr = 5.20E-05
-        self.learner().fit_one_cycle(self.epochs,
+        if not epochs:
+            epochs = self.epochs
+        self.learner().fit_one_cycle(epochs,
                                      slice(lr),
                                      pct_start=self.pct_start)
 
