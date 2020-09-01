@@ -38,3 +38,7 @@ def test_image_data():
     model = CoreModel(os.getcwd())
     data = model.image_data()
     assert data
+
+def test_fit_one():
+    model = CoreModel(os.getcwd(), epochs=1)
+    model.fit()
