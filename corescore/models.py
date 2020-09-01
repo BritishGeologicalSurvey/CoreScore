@@ -92,9 +92,3 @@ class CoreModel():
         """Save the model"""
         # TODO save via MLFLow
         self.learn.save('model')
-
-
-if __name__ == '__main__':
-    coremodel = CoreModel(os.getcwd())
-    coremodel.fit()
-    coremodel.save()
