@@ -55,9 +55,14 @@ class CoreImageProcessor():
         else:
             self.mask_labels = LABELS
 
-    def getImageNames(self, key):
+    def getImageNames(self, image):
         """Returns image name from LabelBox compat data"""
-        return key['External ID']
+        name = None
+        if 'External ID' in image:  # LabelBox
+            name = image['External ID']
+        if 'imagePath' in image:  # LabelTool
+            name = image['imagePath']
+        return name
 
     def generateShapes(self, blankImage, shape, values):
         '''Generates the shapes - i.e. box,rock fragments, paper etc and
