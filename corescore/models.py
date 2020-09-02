@@ -4,6 +4,7 @@ from functools import partial
 
 import numpy as np
 import torch
+import mlflow
 import mlflow.fastai
 from fastai.vision import models
 from fastai.vision.transform import get_transforms

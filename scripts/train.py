@@ -2,7 +2,6 @@ import argparse
 import os
 
 from corescore.models import CoreModel
-import mlflow
 
 
 def train(epochs=10, lr=0.00001, path=os.getcwd()):
