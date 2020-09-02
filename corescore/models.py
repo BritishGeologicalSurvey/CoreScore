@@ -86,5 +86,4 @@ class CoreModel():
 
     def save(self):
         """Save the model"""
-        # TODO save via MLFLow
-        self.learn.save('model')
+        mlflow.fastai.log_model(self.learner(), "model")
