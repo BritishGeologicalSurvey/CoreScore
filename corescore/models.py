@@ -67,8 +67,7 @@ class CoreModel():
             models.resnet34,
             metrics=metrics,
             wd=self.wd)
-        self.learn.model = torch.nn.DataParallel(self.learn.model)
-        self.learn.lr_find()
+        return self.learn
 
     def fit(self, lr=5.20E-05):
         """Fit the model for N epochs (defaults to 10)
