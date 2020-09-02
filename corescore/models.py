@@ -4,6 +4,7 @@ from functools import partial
 
 import numpy as np
 import torch
+import mlflow
 import mlflow.fastai
 from fastai.vision import models
 from fastai.vision.transform import get_transforms
@@ -82,7 +83,7 @@ class CoreModel():
 
     def get_y_fn(self, x):
         """Return a file path to a mask given an image path"""
-        return self.path_lbl / f'{x.stem}{x.suffix}'
+        return self.path_lbl / f'{x.stem}.png'
 
     def save(self):
         """Save the model"""
