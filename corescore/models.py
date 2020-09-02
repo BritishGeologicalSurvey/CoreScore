@@ -1,24 +1,21 @@
 import os
-import warnings
 from pathlib import Path
 from functools import partial
 
 import numpy as np
-import matplotlib.pyplot as plt
-from torchvision import transforms
 import torch
 import mlflow.fastai
 from fastai.vision import models
 from fastai.vision.transform import get_transforms
 from fastai.vision.learner import unet_learner
 from fastai.vision.image import open_mask
-from fastai.vision.data import get_image_files, SegmentationItemList
-from fastai.vision import imagenet_stats, DatasetType
-CUDA_LAUNCH_BLOCKING = "1"  # better error reporting
-# TODO move to v2 when MLFlow does
-#from fastai.vision.all import *
+from fastai.vision.data import SegmentationItemList
+from fastai.vision import imagenet_stats
 from corescore.masks import LABELS
 
+CUDA_LAUNCH_BLOCKING = "1"  # better error reporting
+# TODO move to v2 when MLFlow does
+# from fastai.vision.all import *
 
 URI = os.environ.get('MLFLOW_TRACKING_URI', '')
 mlflow.fastai.autolog()
@@ -36,7 +33,7 @@ class CoreModel():
         self.wd = wd
         self.pct_start = pct_start
         self.epochs = epochs
-        self.reduce_size = np.array([148, 1048])  # TODO derive from samples e.g. src_size / 6
+        self.reduce_size = np.array([148, 1048])  # TODO derive from samples e.g. src_size / 6 # noqa: E501
 
     def image_src(self):
         """Load images from self.path/images"""
@@ -70,19 +67,16 @@ class CoreModel():
             models.resnet34,
             metrics=metrics,
             wd=self.wd)
-        self.learn.model = torch.nn.DataParallel(self.learn.model)
-        self.learn.lr_find()
+        return self.learn
 
-    def fit(self, epochs=None, lr=5.20E-05):
+    def fit(self, lr=5.20E-05):
         """Fit the model for N epochs (defaults to 10)
         with a learning rate (lr - defaults to %20.E.05
         """
         # TODO fix this to use the model's discovered LR
         if not lr:
             lr = 5.20E-05
-        if not epochs:
-            epochs = self.epochs
-        self.learner().fit_one_cycle(epochs,
+        self.learner().fit_one_cycle(self.epochs,
                                      slice(lr),
                                      pct_start=self.pct_start)
 
@@ -92,11 +86,4 @@ class CoreModel():
 
     def save(self):
         """Save the model"""
-        # TODO save via MLFLow
-        self.learn.save('model')
-
-
-if __name__ == '__main__':
-    coremodel = CoreModel(os.getcwd())
-    coremodel.fit()
-    coremodel.save()
+        mlflow.fastai.log_model(self.learner(), "model")

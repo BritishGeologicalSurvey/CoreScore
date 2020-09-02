@@ -30,5 +30,6 @@ def test_load_processor(image_dir, labels):
         has_data = im_arr.any()
         # Test if mask is blank
         assert has_data
-        if has_data: total += 1
+        if has_data:
+            total += 1
     assert total > 1
