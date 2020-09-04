@@ -19,7 +19,6 @@ CUDA_LAUNCH_BLOCKING = "1"  # better error reporting
 # from fastai.vision.all import *
 
 URI = os.environ.get('MLFLOW_TRACKING_URI', '')
-mlflow.fastai.autolog()
 mlflow.set_tracking_uri(URI)
 
 
