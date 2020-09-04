@@ -67,17 +67,16 @@ class CoreModel():
                                metrics=metrics,
                                wd=self.wd)
 
-    def fit(self, lr=5.20E-05):
+    def fit(self, learner, lr=5.20E-05):
         """Fit the model for N epochs (defaults to 10)
         with a learning rate (lr - defaults to %20.E.05
         """
-        learner = self.learner()
         # TODO fix this to use the model's discovered LR
         if not lr:
             lr = 5.20E-05
-        self.learner().fit_one_cycle(self.epochs,
-                                     slice(lr),
-                                     pct_start=self.pct_start)
+        learner.fit_one_cycle(self.epochs,
+                              slice(lr),
+                              pct_start=self.pct_start)
 
     def get_y_fn(self, x):
         """Return a file path to a mask given an image path"""

@@ -7,7 +7,8 @@ import mlflow
 def train(epochs=10, lr=0.00001, path=os.getcwd()):
     mlflow.fastai.autolog()
     coremodel = CoreModel(path, epochs=epochs)
-    coremodel.fit(lr=lr)
+    unet_learn = coremodel.learner()
+    coremodel.fit(lr=lr, learner=unet_learn)
 
 
 if __name__ == '__main__':
