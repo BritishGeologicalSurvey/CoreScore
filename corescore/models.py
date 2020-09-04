@@ -63,17 +63,16 @@ class CoreModel():
     def learner(self):
         """Run the UNet learner based on image data"""
         metrics = self.acc_rock
-        self.learn = unet_learner(
-            self.image_data(),
-            models.resnet34,
-            metrics=metrics,
-            wd=self.wd)
-        return self.learn
+        return    unet_learner(self.image_data(),
+                               models.resnet34,
+                               metrics=metrics,
+                               wd=self.wd)
 
     def fit(self, lr=5.20E-05):
         """Fit the model for N epochs (defaults to 10)
         with a learning rate (lr - defaults to %20.E.05
         """
+        learner = self.learner()
         # TODO fix this to use the model's discovered LR
         if not lr:
             lr = 5.20E-05
