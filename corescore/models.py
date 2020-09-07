@@ -3,7 +3,6 @@ from pathlib import Path
 from functools import partial
 
 import numpy as np
-import torch
 import mlflow
 import mlflow.fastai
 from fastai.vision import models
@@ -62,10 +61,10 @@ class CoreModel():
     def learner(self):
         """Run the UNet learner based on image data"""
         metrics = self.acc_rock
-        return    unet_learner(self.image_data(),
-                               models.resnet34,
-                               metrics=metrics,
-                               wd=self.wd)
+        return unet_learner(self.image_data(),
+                            models.resnet34,
+                            metrics=metrics,
+                            wd=self.wd)
 
     def fit(self, learner, lr=5.20E-05):
         """Fit the model for N epochs (defaults to 10)
