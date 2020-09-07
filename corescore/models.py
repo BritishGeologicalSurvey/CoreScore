@@ -3,7 +3,6 @@ from pathlib import Path
 from functools import partial
 
 import numpy as np
-import torch
 import mlflow
 import mlflow.fastai
 from fastai.vision import models
@@ -19,7 +18,6 @@ CUDA_LAUNCH_BLOCKING = "1"  # better error reporting
 # from fastai.vision.all import *
 
 URI = os.environ.get('MLFLOW_TRACKING_URI', '')
-mlflow.fastai.autolog()
 mlflow.set_tracking_uri(URI)
 
 
@@ -63,23 +61,21 @@ class CoreModel():
     def learner(self):
         """Run the UNet learner based on image data"""
         metrics = self.acc_rock
-        self.learn = unet_learner(
-            self.image_data(),
-            models.resnet34,
-            metrics=metrics,
-            wd=self.wd)
-        return self.learn
+        return unet_learner(self.image_data(),
+                            models.resnet34,
+                            metrics=metrics,
+                            wd=self.wd)
 
-    def fit(self, lr=5.20E-05):
+    def fit(self, learner, lr=5.20E-05):
         """Fit the model for N epochs (defaults to 10)
         with a learning rate (lr - defaults to %20.E.05
         """
         # TODO fix this to use the model's discovered LR
         if not lr:
             lr = 5.20E-05
-        self.learner().fit_one_cycle(self.epochs,
-                                     slice(lr),
-                                     pct_start=self.pct_start)
+        learner.fit_one_cycle(self.epochs,
+                              slice(lr),
+                              pct_start=self.pct_start)
 
     def get_y_fn(self, x):
         """Return a file path to a mask given an image path"""

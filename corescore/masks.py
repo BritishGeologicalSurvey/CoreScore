@@ -165,11 +165,11 @@ class CoreImageProcessor():
         #       "points": [[ 6184, 1223], etc
         elif 'shapes' in fp:
             for shape in fp['shapes']:
-                 if shape['label'] not in self.mask_labels:
-                     continue
-                 colour = self.masks[shape['label']]
-                 points = [tuple(p) for p in shape['points']]
-                 draw.polygon(points, outline=colour, fill=colour)
+                if shape['label'] not in self.mask_labels:
+                    continue
+                colour = self.masks[shape['label']]
+                points = [tuple(p) for p in shape['points']]
+                draw.polygon(points, outline=colour, fill=colour)
 
         return np.array(image)
 
