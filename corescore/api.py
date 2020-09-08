@@ -21,15 +21,20 @@ import io
 from typing import List
 
 from fastapi import FastAPI
+from fastai.vision.image import Image as fastaiImage
+from fastai.vision import *
 import numpy as np
 from PIL import Image
 from pydantic import BaseModel
 
+from mlflow import fastai
+
+LOCAL_MODEL_PATH = "/home/ahall/CoreScore/scripts/mlruns/0/066d1c4a254545a79f88bc193be5cd24/artifacts/model"
 
 # By default, models from corebreakout's assets.zip
 def load_model():
-    """Load the latest (best scoring) UNet from MLFlow registry"""
-    pass
+    model = fastai.load_model(LOCAL_MODEL_PATH)
+    return model
 
 
 app = FastAPI()
@@ -62,4 +67,7 @@ def segment_image(instance: Instance, model=load_model()):
     image_arr = np.array(Image.open(io.BytesIO(image_bytes)))
     # predict
     # TODO return labelled regions that LabelTool hopes for
-    return {}
+    image_arr = fastaiImage(pil2tensor(image_arr,dtype=np.float32))
+    prediction = model.predict(image_arr)
+
+    return prediction
