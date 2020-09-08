@@ -10,30 +10,44 @@ class MlflowRegistry(MlflowClient):
         self.client = MlflowClient(client)
         super().__init__(*args, **kwargs)
 
-    def get_best(self, client, tag, search_str, metric):
-        query = f"tags.{tag} = '{search_str}'"
-        search_result = self.client.search_runs(experiment_ids="0", filter_string=query, max_results=1, order_by=[f"metrics.{metric} DESC"])[0]
-        artifact_uri = search_result.to_dictionary()['info']['artifact_uri']
-        run_id = search_result.to_dictionary()['info']['run_id']
+
+    def get_info(self, search_result):
+        """Given a search response from the mlflow api
+           return artifact_uri and run_id"""
+        search_dict = search_result.to_dictionary()
+        artifact_uri = search_dict['info']['artifact_uri']
+        run_id = search_dict['info']['run_id']
         return {'artifact_uri': artifact_uri, 'run_id': run_id}
 
-    def get_latest(self, client, tag, search_str):
-        query = f"tags.{tag} = '{search_str}'" 
-        search_res = self.client.search_runs(experiment_ids="0", filter_string=query)[0]
-        return search_res
+    def get_best(self, tag, search_str, metric):
+        """Query the mlflow api and return
+            best model"""
+        query = f"tags.{tag} = '{search_str}'"
+        search_result = self.client.search_runs(experiment_ids="0",
+                                                filter_string=query,
+                                                order_by=[f"metrics.{metric} DESC"])[0]
+        return self.get_info(search_result)
 
-    def register_best(self, client, tag, search_str, metric, name="best-reg-model"):
-        best_model = self.get_best(client=client,
-                                   tag=tag,
+    def get_latest(self, tag, search_str):
+        """Query the mlflow api and return
+           latest model"""
+        query = f"tags.{tag} = '{search_str}'" 
+        search_result = self.client.search_runs(experiment_ids="0",
+                                                filter_string=query)[0]
+        return self.get_info(search_result)
+
+    def register_best(self, tag, search_str, metric, name="best-reg-model"):
+        """Register best model"""
+        best_model = self.get_best(tag=tag,
 		        	   search_str=search_str,
                                    metric=metric)
         mlflow.register_model(best_model['artifact_uri'],
                               name)
 
 
-    def register_latest(self, client, tag, search_str, name="latest-reg-model"):
-        latest_model = self.get_latest(client=client,
-                                       tag=tag,
+    def register_latest(self, tag, search_str, name="latest-reg-model"):
+        """Register latest model"""
+        latest_model = self.get_latest(tag=tag,
                                        search_str=search_str)
         mlflow.register_model(latest_model['artifact_uri'],
                               name)
