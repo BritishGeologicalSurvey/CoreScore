@@ -22,5 +22,5 @@ if __name__ == '__main__':
     if args.tag and args.name:
         register_model(client, tag=args.tag, search_str=args.name)
     else:
-        list_models()
+        list_models(client)
 
