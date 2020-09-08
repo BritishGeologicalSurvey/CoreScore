@@ -18,7 +18,7 @@ if __name__ == '__main__':
     parser.add_argument('--tag', type=str, help="model tag")
     parser.add_argument('--name', type=str, help="model name")
     args = parser.parse_args()
-    
+
     if args.tag and args.name:
         register_model(client, tag=args.tag, search_str=args.name)
     else:
