@@ -20,9 +20,12 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.tag and args.name:
-        register_model(client, tag=args.tag, search_str=args.name, metric=args.metric)
+        register_model(
+            client,
+            tag=args.tag,
+            search_str=args.name,
+            metric=args.metric)
     elif args.name and args.load:
         client.load_model(name=args.name)
     else:
         print(client.list_models())
-    
