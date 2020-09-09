@@ -12,7 +12,6 @@ API expects an input like this
 """
 import os
 from base64 import b64encode
-import json
 import pytest
 from unittest.mock import MagicMock
 from fastapi.testclient import TestClient
@@ -20,9 +19,11 @@ from corescore.api import app, load_model
 
 client = TestClient(app)
 
+
 class MockModel(MagicMock):
     # Could set a return_value of predict() here
     pass
+
 
 async def load_test_model():
     return MockModel()

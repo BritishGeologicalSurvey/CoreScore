@@ -21,19 +21,20 @@ import io
 from typing import List
 
 from fastapi import FastAPI, Depends
-from fastai.vision.image import Image as fastaiImage
-from fastai.vision import *
+from fastai.vision.image import Image as fastaiImage, pil2tensor
+import mlflow
 import numpy as np
 from PIL import Image
 from pydantic import BaseModel
 
-from mlflow import fastai
 
-LOCAL_MODEL_PATH = "/home/ahall/CoreScore/scripts/mlruns/0/066d1c4a254545a79f88bc193be5cd24/artifacts/model"
+LOCAL_MODEL_PATH = "/home/ahall/CoreScore/scripts/mlruns/0/066d1c4a254545a79f88bc193be5cd24/artifacts/model"  # noqa: E501
 
 # By default, models from corebreakout's assets.zip
+
+
 def load_model():
-    model = fastai.load_model(LOCAL_MODEL_PATH)
+    model = mlflow.fastai.load_model(LOCAL_MODEL_PATH)
     return model
 
 
@@ -67,7 +68,7 @@ def segment_image(instance: Instance, model):
     image_arr = np.array(Image.open(io.BytesIO(image_bytes)))
     # predict
     # TODO return labelled regions that LabelTool hopes for
-    image_arr = fastaiImage(pil2tensor(image_arr,dtype=np.float32))
+    image_arr = fastaiImage(pil2tensor(image_arr, dtype=np.uint8))
     prediction = model.predict(image_arr)
 
     return prediction
