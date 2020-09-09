@@ -27,4 +27,5 @@ def test_image_data():
 
 def test_fit_one():
     model = CoreModel(os.getcwd(), epochs=1)
-    model.fit()
+    learn = model.learner()
+    model.fit(learn)

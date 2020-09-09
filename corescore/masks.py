@@ -147,12 +147,30 @@ class CoreImageProcessor():
         """Write masks into the images using the labelled shapes"""
         image = img
         draw = ImageDraw.Draw(image)
-        for key, value in self.masks.items():
-            if key in fp["Label"] and key in self.mask_labels:
-                for geometry in fp["Label"][key]:
-                    shape = self.getXY(*geometry['geometry'])
-                    logging.debug(shape)
-                    draw.polygon(shape, outline=value, fill=value)
+
+        # LabelBox export format
+        # "Label": {"Rock_Fragment": [{"geometry": [{"x": 756,
+        if 'Label' in fp:
+            for key, value in self.masks.items():
+                if key in fp["Label"] and key in self.mask_labels:
+                    for geometry in fp["Label"][key]:
+                        shape = self.getXY(*geometry['geometry'])
+                        logging.debug(shape)
+                        draw.polygon(shape, outline=value, fill=value)
+
+        # LabelTool export format
+        # shapes": [
+        #      {
+        #    "label": "Rock_Fragment",
+        #       "points": [[ 6184, 1223], etc
+        elif 'shapes' in fp:
+            for shape in fp['shapes']:
+                if shape['label'] not in self.mask_labels:
+                    continue
+                colour = self.masks[shape['label']]
+                points = [tuple(p) for p in shape['points']]
+                draw.polygon(points, outline=colour, fill=colour)
+
         return np.array(image)
 
     def getXY(self, *args):
