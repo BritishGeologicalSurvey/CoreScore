@@ -1,5 +1,6 @@
 import mlflow
 from mlflow.tracking.client import MlflowClient
+import os
 
 class MlflowRegistryError(Exception):
     pass
@@ -38,3 +39,19 @@ class MlflowRegistry(MlflowClient):
         else:
             mlflow.register_model(self.get_info(exp_list[0])['artifact_uri'],
                               name)
+    def list_models(self):
+        """Return a list of registered models"""
+        registered_models = []
+        for rm in self.client.list_registered_models():
+            registered_models.append(rm)
+        return registered_models
+
+    def load_model(self, name):
+        """Load model from registry based on name"""
+        models = self.list_models()
+        latest = list(filter(lambda model: model.name == name, models))[0]
+        model_path = os.path.join(latest.latest_versions[0].source, 'model')
+        print(model_path)
+        model = mlflow.fastai.load_model(model_path)
+         
+
