@@ -20,7 +20,7 @@ import base64
 import io
 from typing import List
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastai.vision.image import Image as fastaiImage
 from fastai.vision import *
 import numpy as np
@@ -55,14 +55,14 @@ class Instances(BaseModel):
 
 
 @app.post("/labels")
-def core_labels(images: Instances):
+async def core_labels(images: Instances, model=Depends(load_model)):
     labels = []
     for instance in images:
-        labels.append(segment_image(instance))
+        labels.append(segment_image(instance, model))
     return {"masks": labels}
 
 
-def segment_image(instance: Instance, model=load_model()):
+def segment_image(instance: Instance, model):
     image_bytes = base64.decodebytes(instance[1][0].input_bytes.b64.encode())
     image_arr = np.array(Image.open(io.BytesIO(image_bytes)))
     # predict
