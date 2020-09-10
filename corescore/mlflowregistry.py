@@ -12,7 +12,7 @@ class MlflowRegistry(MlflowClient):
         self.client = MlflowClient(client)
         super().__init__(*args, **kwargs)
 
-    def get_info(self, search_result):
+    def _get_info(self, search_result):
         """Given a search response from the mlflow api
            return artifact_uri, run_id and metrics"""
         search_dict = search_result.to_dictionary()
@@ -48,7 +48,7 @@ class MlflowRegistry(MlflowClient):
                    f"and not better than {old_metric}."
                    f"Set `override=True` to override."
                    f"Model was not registered.")
-           print(msg)
+            print(msg)
         else:
             mlflow.register_model(self.get_info(exp_list[0])['artifact_uri'],
                                   name)
