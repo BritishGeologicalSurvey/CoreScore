@@ -1,5 +1,10 @@
 # Core Analyses Project
 
+This project provides an analysis of the quality of the cores in the [British Geological Survey][https://github.com/BritishGeologicalSurvey] [Core Store](https://www.bgs.ac.uk/collections/corestore_kw.html) based on core photography. It was originally an MSc project by Zayad Al Zaher, co-supervised by Mark Fellgett at BGS. It's since been adopted by BGS Digital Labs and extended for production use.
+
+We've added integration with [MLFlow](https://github.com/mlflow/mlflow) to monitor and manage model training runs, and an API designed for use within [LabelTool](https://github.com/Slava/label-tool) to help speed up the process of adding annotations to core images.
+
+
 ## Installation notes
 
 Install pytorch and torchvision from conda:
@@ -52,13 +57,19 @@ The example below is of a prediction on an untrained example:
 The final output from the images themselves looks like what is below- with varying accuracies depending on how well the mask worked
 ![Example of fully processed image](Images/S00128821.Cropped_Top_2_Countoured.png)
 
-***
 
-***Dependencies***
+## Contributors
 
-OpenCV Above 3.4 - This is for the computer vision parts - segmentation and masking etc.. 
-Sci-kit image to make the watershed segmentation work, along with imutils
+ * Zayad Al Zaher
+ * Mark Fellgett
+ * Jo Walsh
+ * Vyron Christolodou
+ * Alex Hall
 
-FastAi - which is built on pytorch - setup uses Salamander.Ai - most of the needed libraries come pre-installed - this is to recreate the machine learning parts - the code should run assuming you have all the needed training files in the right directories
+We welcome any contributions to code or issues.
 
-Numpy is needed for everything
+## Acknowledgements
+
+We're grateful to the maintainers of [corebreakout](https://github.com/rgmyr/corebreakout) for their work with BGS Core Store data on [Subsurface Core Images to Depth-Registered Datasets](https://joss.theoj.org/papers/10.21105/joss.01969) <img src="https://joss.theoj.org/papers/10.21105/joss.01969/status.svg"/> and hope to provide our own annotations for the BGS images that project provides as training data.
+
+
