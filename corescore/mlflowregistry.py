@@ -12,25 +12,17 @@ class MlflowRegistry(MlflowClient):
         self.client = MlflowClient(client)
         super().__init__(*args, **kwargs)
 
-    def _get_info(self, search_result):
-        """Given a search response from the mlflow api
-           return artifact_uri, run_id and metrics"""
-        search_dict = search_result.to_dictionary()
-        artifact_uri = search_dict['info']['artifact_uri']
-        run_id = search_dict['info']['run_id']
-        metrics = search_dict['data']['metrics']
-        return {
-            'artifact_uri': artifact_uri,
-            'run_id': run_id,
-            'metrics': metrics}
-
     def list_experiments(self, tag, search_str):
-        """Query the mlflow api and list
-           logged experiments"""
+        """Query the mlflow api and return
+           a list of experiment dictionaries"""
+        runs_list = []
         query = f"tags.{tag} = '{search_str}'"
-        return self.client.search_runs(experiment_ids="0",
-                                       filter_string=query)
-
+        search_result = self.client.search_runs(experiment_ids="0",
+                                                filter_string=query)
+        for run in search_result:
+            runs_list.append(run.to_dictionary())
+        return runs_list
+    
     def register_model(
             self,
             tag,
@@ -38,21 +30,18 @@ class MlflowRegistry(MlflowClient):
             metric,
             override=False,
             name="latest-reg-model"):
-        """Register a model if it shows better performance"""
-        exp_list = self.list_experiments(tag=tag,
-                                         search_str=search_str)
-        old_metric = self.get_info(exp_list[1])['metrics'][f"{metric}"]
-        latest_metric = self.get_info(exp_list[0])['metrics'][f"{metric}"]
+        """Register a model only if it shows better performance"""
+        old_metric = self.list_experiments[1]['metrics'][f"{metric}"]
+        latest_metric = self.list_experiments[0]['metrics'][f"{metric}"]
         if old_metric >= latest_metric and not override:
-            msg = (f"Latest model's {metric} is {latest_metric}"
-                   f"and not better than {old_metric}."
-                   f"Set `override=True` to override."
-                   f"Model was not registered.")
+            msg = (f"Model did not show improvement."
+                   f"Model was not registered."
+                   f"Set `override=True` to override.")
             print(msg)
         else:
-            mlflow.register_model(self.get_info(exp_list[0])['artifact_uri'],
+            mlflow.register_model(self.list_experiments[0]['artifact_uri'],
                                   name)
-
+     
     def list_models(self):
         """Return a list of registered models"""
         registered_models = []
