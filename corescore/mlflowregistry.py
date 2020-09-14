@@ -22,7 +22,7 @@ class MlflowRegistry(MlflowClient):
         for run in search_result:
             runs_list.append(run.to_dictionary())
         return runs_list
-    
+
     def register_model(
             self,
             tag,
@@ -41,7 +41,7 @@ class MlflowRegistry(MlflowClient):
         else:
             mlflow.register_model(self.list_experiments[0]['artifact_uri'],
                                   name)
-     
+
     def list_models(self):
         """Return a list of registered models"""
         registered_models = []
