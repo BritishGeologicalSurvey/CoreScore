@@ -1,6 +1,5 @@
 from unittest.mock import patch
 
-import mlflow
 from mlflow.entities import (RunData,
                              RunInfo,
                              Run,
@@ -48,6 +47,14 @@ def mock_response(*args, **kwargs):
        side_effect=mock_response)
 def test_list_experiments(*args):
     client = MlflowRegistry()
-    response = client.list_experiments(query="tag.model = corescore" )
+    response = client.list_experiments(query='tag.model = "corescore"')
     assert isinstance(response, list)
     assert isinstance(response[0], dict)
+
+
+@patch('mlflow.tracking.client.MlflowClient.search_runs',
+       side_effect=mock_response)
+def test_register_model(*args):
+    client = MlflowRegistry()
+    client.register_model(query='tag.model = "corescore"',
+                          metric="test")
