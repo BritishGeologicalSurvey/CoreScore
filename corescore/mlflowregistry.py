@@ -12,11 +12,10 @@ class MlflowRegistry(MlflowClient):
         self.client = MlflowClient(client)
         super().__init__(*args, **kwargs)
 
-    def list_experiments(self, tag, search_str):
+    def list_experiments(self, query):
         """Query the mlflow api and return
            a list of experiment dictionaries"""
         runs_list = []
-        query = f"tags.{tag} = '{search_str}'"
         search_result = self.client.search_runs(experiment_ids="0",
                                                 filter_string=query)
         for run in search_result:
@@ -25,21 +24,21 @@ class MlflowRegistry(MlflowClient):
 
     def register_model(
             self,
-            tag,
-            search_str,
+            query,
             metric,
             override=False,
             name="latest-reg-model"):
         """Register a model only if it shows better performance"""
-        old_metric = self.list_experiments[1]['metrics'][f"{metric}"]
-        latest_metric = self.list_experiments[0]['metrics'][f"{metric}"]
+        search_result = self.list_experiments(query=query)
+        old_metric = search_result[1]['data']['metrics'][f"{metric}"]
+        latest_metric = search_result[0]['data']['metrics'][f"{metric}"]
         if old_metric >= latest_metric and not override:
             msg = (f"Model did not show improvement."
                    f"Model was not registered."
                    f"Set `override=True` to override.")
             print(msg)
         else:
-            mlflow.register_model(self.list_experiments[0]['artifact_uri'],
+            mlflow.register_model(search_result[0]['info']['artifact_uri'],
                                   name)
 
     def list_models(self):
