@@ -5,10 +5,6 @@ import mlflow
 from corescore.mlflowregistry import MlflowRegistry
 
 
-def register_model(client, tag, search_str, metric):
-    client.register_model(tag, search_str, metric)
-
-
 if __name__ == '__main__':
     URI = os.environ.get('MLFLOW_TRACKING_URI', '')
     client = MlflowRegistry(URI)
@@ -19,13 +15,11 @@ if __name__ == '__main__':
     parser.add_argument('--load', action='store_true', help="load model")
     args = parser.parse_args()
 
-    if args.tag and args.name:
-        register_model(
-            client,
-            tag=args.tag,
-            search_str=args.name,
+    if args.tag and args.name and args.metric:
+        client.register_model(query=f"tags.{args.tag} = '{args.name}'",
             metric=args.metric)
     elif args.name and args.load:
         client.load_model(name=args.name)
     else:
-        print(client.list_models())
+        print(client.list_experiments(query="tags.model = 'geo-ner-spacy'"))
+   
