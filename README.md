@@ -63,7 +63,7 @@ The final output from the images themselves looks like what is below- with varyi
  * Zayad Al Zaher
  * Mark Fellgett
  * Jo Walsh
- * Vyron Christolodou
+ * Vyron Christodoulou
  * Alex Hall
 
 We welcome any contributions to code or issues.
