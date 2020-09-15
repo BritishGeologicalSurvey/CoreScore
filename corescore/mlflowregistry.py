@@ -30,13 +30,16 @@ class MlflowRegistry(MlflowClient):
             name="latest-reg-model"):
         """Register a model only if it shows better performance"""
         search_result = self.list_experiments(query=query)
-        old_metric = search_result[1]['data']['metrics'][f"{metric}"]
-        latest_metric = search_result[0]['data']['metrics'][f"{metric}"]
-        if old_metric >= latest_metric and not override:
-            msg = (f"Model did not show improvement."
-                   f"Model was not registered."
-                   f"Set `override=True` to override.")
-            print(msg)
+        try:
+            old_metric = search_result[1]['data']['metrics'][f"{metric}"]
+            latest_metric = search_result[0]['data']['metrics'][f"{metric}"]
+            if old_metric >= latest_metric and not override:
+                msg = (f"Model did not show improvement."
+                       f"Model was not registered."
+                       f"Set `override=True` to override.")
+                print(msg)
+        except (IndexError, KeyError):
+            raise MlflowRegistryError("An error has occured. Please try a different metric.")
         else:
             mlflow.register_model(search_result[0]['info']['artifact_uri'],
                                   name)
