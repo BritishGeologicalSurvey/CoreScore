@@ -1,6 +1,6 @@
 # Core Analyses Project
 
-This project provides an analysis of the quality of the cores in the [British Geological Survey][https://github.com/BritishGeologicalSurvey] [Core Store](https://www.bgs.ac.uk/collections/corestore_kw.html) based on core photography. It was originally an MSc project by Zayad Al Zaher, co-supervised by Mark Fellgett at BGS. It's since been adopted by BGS Digital Labs and extended for production use.
+This project provides an analysis of the quality of the cores in the [British Geological Survey](https://github.com/BritishGeologicalSurvey) [Core Store](https://www.bgs.ac.uk/collections/corestore_kw.html) based on core photography. It was originally an MSc project by Zayad Al Zaher, co-supervised by Mark Fellgett at BGS. It's since been adopted by BGS Digital Labs and extended for production use.
 
 We've added integration with [MLFlow](https://github.com/mlflow/mlflow) to monitor and manage model training runs, and an API designed for use within [LabelTool](https://github.com/Slava/label-tool) to help speed up the process of adding annotations to core images.
 
