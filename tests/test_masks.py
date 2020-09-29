@@ -25,6 +25,7 @@ def labeltool_labels():
         os.path.dirname(os.path.abspath(__file__)),
         'fixtures', 'labeltool.json')
 
+
 def test_load_processor(image_dir, labels):
     coreProcessor = CoreImageProcessor(image_dir, labels=labels)
     assert len(coreProcessor.core_types)
