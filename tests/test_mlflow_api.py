@@ -21,29 +21,40 @@ def test_list_models(*args):
 
 
 def mock_response(*args, **kwargs):
-    if "corescore" in kwargs['filter_string']: 
-        mock_run = Run(run_data=RunData(metrics=[Metric(key='value_loss',
-                                                    value=2.2,
-                                                    timestamp=5000,
-                                                    step=31),
-                                             Metric(key='acc',
-                                                    value=42,
-                                                    timestamp=2131,
-                                                    step=3)],
-                                    params={Param(key='batch_size',
-                                                  value='2')},
-                                    tags=[RunTag(key='model', value='corescore')]),
-                   run_info=RunInfo(run_uuid='run_uuid',
-                                    experiment_id='experiment_id',
-                                    user_id='user_id',
-                                    status=RunStatus(),
-                                    start_time=2222,
-                                    end_time=2222,
-                                    artifact_uri='artifact_uri',
-                                    lifecycle_stage='testing'))
-        return [mock_run] 
+    if "corescore" in kwargs['filter_string']:
+        mock_run = Run(
+            run_data=RunData(
+                metrics=[
+                    Metric(
+                        key='value_loss',
+                        value=2.2,
+                        timestamp=5000,
+                        step=31),
+                    Metric(
+                        key='acc',
+                        value=42,
+                        timestamp=2131,
+                        step=3)],
+                params={
+                    Param(
+                        key='batch_size',
+                        value='2')},
+                tags=[
+                    RunTag(
+                        key='model',
+                        value='corescore')]),
+            run_info=RunInfo(
+                run_uuid='run_uuid',
+                experiment_id='experiment_id',
+                user_id='user_id',
+                status=RunStatus(),
+                start_time=2222,
+                end_time=2222,
+                artifact_uri='artifact_uri',
+                lifecycle_stage='testing'))
+        return [mock_run]
     else:
-        return []     
+        return []
 
 
 @patch('mlflow.tracking.client.MlflowClient.search_runs',

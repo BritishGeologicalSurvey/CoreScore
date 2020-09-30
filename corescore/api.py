@@ -22,23 +22,22 @@ from typing import List
 
 from fastapi import FastAPI, Depends
 from fastai.vision.image import Image as fastaiImage, pil2tensor
-import mlflow
 import numpy as np
 from PIL import Image
 from pydantic import BaseModel
 
+from corescore.mlflowregistry import MlflowRegistry
 
-LOCAL_MODEL_PATH = "/home/ahall/CoreScore/scripts/mlruns/0/066d1c4a254545a79f88bc193be5cd24/artifacts/model"  # noqa: E501
-
-# By default, models from corebreakout's assets.zip
+MODEL_NAME = 'corescore'
 
 
 def load_model():
-    model = mlflow.fastai.load_model(LOCAL_MODEL_PATH)
-    return model
+    """Load latest version of our model from MLFlow registry"""
+    return registry.load_model(MODEL_NAME)
 
 
 app = FastAPI()
+registry = MlflowRegistry()
 
 
 # Define classes for what Label-tool accepts

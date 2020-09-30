@@ -31,8 +31,8 @@ class MlflowRegistry(MlflowClient):
         try:
             artifact_uri = search_result[0]['info']['artifact_uri']
         except IndexError:
-            raise MlflowRegistryError(f"Search returned no results."
-                                      f"Try a different query.")
+            raise MlflowRegistryError("Search returned no results."
+                                      "Try a different query.")
         mlflow.register_model(artifact_uri,
                               name=name)
 
@@ -48,5 +48,5 @@ class MlflowRegistry(MlflowClient):
         models = self.list_models()
         latest = list(filter(lambda model: model.name == name, models))[0]
         model_path = os.path.join(latest.latest_versions[0].source, 'model')
-        print(model_path)
         model = mlflow.fastai.load_model(model_path)
+        return model
