@@ -24,6 +24,7 @@ class MockModel(MagicMock):
     def predict(*args):
         return None, [], None
 
+
 async def load_test_model():
     return MockModel()
 

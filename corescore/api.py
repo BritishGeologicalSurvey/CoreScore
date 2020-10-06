@@ -22,7 +22,11 @@ MODEL_NAME = 'corescore'
 
 def load_model():
     """Load latest version of our model from MLFlow registry"""
-    return registry.load_model(MODEL_NAME)
+    try:
+        model = registry.load_model(MODEL_NAME)
+    except Exception as err:  # handle better
+        raise err  # will fastapi be graceful
+    return model
 
 
 app = FastAPI()
