@@ -1,19 +1,8 @@
 """API accepting requests sent by LabelTool,
 for use with its ML Assist mode in image annotation
-This is what it should respond with
 
-{
-  "predictions": [
-    {
-       "det_boxes": [<ymin>, <xmin>, <ymax>, <xmax>],
-       "det_class": <str>,
-       "det_score": <0 ~ 1 floating number
-    },
-    ...,
-    ...
-    ]
-}
-
+This shows the response formats for different image segmentation
+https://github.com/Slava/label-tool/blob/master/client/src/admin/MLAssist.js
 """
 
 import base64
@@ -59,15 +48,16 @@ async def core_labels(images: Instances, model=Depends(load_model)):
     labels = []
     for instance in images:
         labels.append(segment_image(instance, model))
-    return {"masks": labels}
+    return {"predictions": [labels]}
 
 
 def segment_image(instance: Instance, model):
     image_bytes = base64.decodebytes(instance[1][0].input_bytes.b64.encode())
     image_arr = np.array(Image.open(io.BytesIO(image_bytes)))
-    # predict
-    # TODO return labelled regions that LabelTool hopes for
-    image_arr = fastaiImage(pil2tensor(image_arr, dtype=np.uint8))
-    prediction = model.predict(image_arr)
 
-    return prediction
+    image_arr = fastaiImage(pil2tensor(image_arr, dtype=np.uint8))
+
+    # The mask prediction will be the grayscale 2d array
+    # LabelTool wants a list of {raw_image: []}
+    _, mask, _ = model.predict(image_arr)
+    return mask

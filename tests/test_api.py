@@ -21,9 +21,8 @@ client = TestClient(app)
 
 
 class MockModel(MagicMock):
-    # Could set a return_value of predict() here
-    pass
-
+    def predict(*args):
+        return None, [], None
 
 async def load_test_model():
     return MockModel()
@@ -51,4 +50,4 @@ def test_labels(image_bytes):
     response = client.post("/labels", json=body)
 
     assert response.status_code == 200
-    assert response.json()["masks"]
+    assert response.json()["predictions"]
