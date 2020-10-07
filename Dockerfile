@@ -5,6 +5,7 @@ RUN echo 'fastai 1.*' >> /opt/bitnami/miniconda/conda-meta/pinned
 RUN conda install -y -c fastai -c pytorch fastai torchvision
 COPY requirements.txt .
 RUN pip install -r requirements.txt
+RUN pip install uvicorn
 
 WORKDIR /app
 EXPOSE 5001
@@ -12,4 +13,4 @@ EXPOSE 5001
 ADD ./corescore ./corescore
 ADD ./tests ./tests
 
-CMD ["gunicorn", "-w", "5", "-b", "0.0.0.0:5001", "corescore.api:app"]
+CMD ["uvicorn", "corescore.api:app", "--host", "0.0.0.0", "--port", "5001"]
