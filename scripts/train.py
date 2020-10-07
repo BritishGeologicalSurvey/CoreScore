@@ -7,6 +7,7 @@ import mlflow
 
 def train(epochs=10, lr=0.00001, path=os.getcwd()):
     mlflow.fastai.autolog()
+    mlflow.set_tag('model', 'corescore')
     coremodel = CoreModel(path, epochs=epochs)
     unet_learn = coremodel.learner()
     coremodel.fit(lr=lr, learner=unet_learn)
