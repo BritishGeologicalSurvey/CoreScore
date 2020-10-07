@@ -18,7 +18,7 @@ if __name__ == '__main__':
                         default=10,
                         help="Epochs to train, default 10")
     parser.add_argument('--lr',
-                        default=0.00001
+                        default=0.00001,
                         help="Learning rate to perform training")
     args = parser.parse_args()
 
