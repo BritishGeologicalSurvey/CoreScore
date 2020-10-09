@@ -15,6 +15,8 @@ from base64 import b64encode
 import pytest
 from unittest.mock import MagicMock
 from fastapi.testclient import TestClient
+import numpy as np
+from torchvision.transforms import ToTensor
 from corescore.api import app, load_model
 
 client = TestClient(app)
@@ -22,7 +24,7 @@ client = TestClient(app)
 
 class MockModel(MagicMock):
     def predict(*args):
-        return None, [], None
+        return None, ToTensor()(np.asarray([[0,1],[0,2]])), None
 
 
 async def load_test_model():
