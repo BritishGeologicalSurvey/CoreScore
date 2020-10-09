@@ -16,10 +16,27 @@
 		  }
 		}
 
+        function imageRender(maskData) { 
+            // Should accept a mock-RGB version of mask
+            // create off-screen canvas element
+            var canvas = document.createElement('canvas'),
+            ctx = canvas.getContext('2d');
 
-    </script>
-</head>
-<body>
+            canvas.width = width;
+            canvas.height = height;
+
+            // create imageData object
+            var idata = ctx.createImageData(width, height);
+
+            // set our buffer as source
+            idata.data.set(buffer);
+
+            // update canvas with new data
+            ctx.putImageData(idata, 0, 0);
+        }
+        </script>
+        </head>
+    <body>
 
     <form>
   <input type='file' id="imgInp" onchange="readURL(this);"/>

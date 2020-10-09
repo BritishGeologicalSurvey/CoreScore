@@ -10,10 +10,10 @@ import io
 from typing import List
 
 from fastapi import FastAPI, Depends
-from fastai.vision.image import Image as fastaiImage, pil2tensor
-import numpy as np
-from PIL import Image
+from fastai.vision.image import Image
 from pydantic import BaseModel
+from skimage.io import imread
+from torchvision.transforms import ToTensor
 
 from corescore.mlflowregistry import MlflowRegistry
 
@@ -49,19 +49,24 @@ class Instances(BaseModel):
 
 @app.post("/labels")
 async def core_labels(images: Instances, model=Depends(load_model)):
+    """Return a set of masks for input images
+    Accepts JSON with base64 encoded images as per LabelTool MLAssist
+    """
     labels = []
     for instance in images:
         labels.append(segment_image(instance, model))
-    return {"predictions": [labels]}
+    return {"predictions": labels}
 
 
 def segment_image(instance: Instance, model):
+    """Decode a base64 encoded image return Unet predictions for labels"""
     image_bytes = base64.decodebytes(instance[1][0].input_bytes.b64.encode())
-    image_arr = np.array(Image.open(io.BytesIO(image_bytes)))
+    image_arr = imread(io.BytesIO(image_bytes))
 
-    image_arr = fastaiImage(pil2tensor(image_arr, dtype=np.uint8))
+    image_arr = Image(ToTensor()(image_arr))
 
     # The mask prediction will be the grayscale 2d array
     # LabelTool wants a list of {raw_image: []}
     _, mask, _ = model.predict(image_arr)
-    return mask
+    mask_arr = mask.numpy()[0].astype('uint8').tolist()
+    return {'raw_image': mask_arr}
