@@ -5,7 +5,6 @@ using the same interface that LabelTool expects
 import os
 import requests
 from base64 import b64encode
-from corescore.api import app, load_model
 
 API = 'http://localhost:5001'
 
