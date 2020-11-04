@@ -9,13 +9,12 @@ import base64
 import io
 from typing import List
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from fastai.vision.image import Image
 from pydantic import BaseModel
 from skimage.io import imread
 from torchvision.transforms import ToTensor
-
-from corescore.mlflowregistry import MlflowRegistry
+from corescore.mlflowregistry import MlflowRegistry, MlflowRegistryError
 
 MODEL_NAME = 'corescore'
 
@@ -24,8 +23,8 @@ def load_model():
     """Load latest version of our model from MLFlow registry"""
     try:
         model = registry.load_model(MODEL_NAME)
-    except Exception as err:  # handle better
-        raise err  # will fastapi be graceful
+    except MlflowRegistryError:  # handle better
+        raise HTTPException(status_code=404, detail="Model not found")
     return model
 
 
