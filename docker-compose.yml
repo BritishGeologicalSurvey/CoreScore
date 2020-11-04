@@ -1,0 +1,13 @@
+version: '3.3'
+services:
+  api:
+    build: .
+    image: bgs/core
+    volumes:
+      - "/var/lib/mlflow:/var/lib/mlflow"
+    ports:
+      - 5001:5001
+    # Assume MLFlow on localhost:5000 
+    network_mode: host
+    environment:
+      - MLFLOW_TRACKING_URI=http://localhost:5000   

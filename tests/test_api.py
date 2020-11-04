@@ -15,14 +15,16 @@ from base64 import b64encode
 import pytest
 from unittest.mock import MagicMock
 from fastapi.testclient import TestClient
+import numpy as np
+from torchvision.transforms import ToTensor
 from corescore.api import app, load_model
 
 client = TestClient(app)
 
 
 class MockModel(MagicMock):
-    # Could set a return_value of predict() here
-    pass
+    def predict(*args):
+        return None, ToTensor()(np.asarray([[0,1],[0,2]])), None
 
 
 async def load_test_model():
@@ -51,4 +53,4 @@ def test_labels(image_bytes):
     response = client.post("/labels", json=body)
 
     assert response.status_code == 200
-    assert response.json()["masks"]
+    assert response.json()["predictions"]
