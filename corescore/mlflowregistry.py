@@ -46,7 +46,10 @@ class MlflowRegistry(MlflowClient):
     def load_model(self, name):
         """Load model from registry based on name"""
         models = self.list_models()
-        latest = list(filter(lambda model: model.name == name, models))[0]
+        try:
+            latest = list(filter(lambda model: model.name == name, models))[0]
+        except IndexError:
+            raise MlflowRegistryError(f"Model {name} does not exist")
         model_path = os.path.join(latest.latest_versions[0].source, 'model')
         model = mlflow.fastai.load_model(model_path)
         return model
