@@ -13,17 +13,10 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           auto-update-conda: true
-
-      - name: run the API tests
+          activate-environment: test
+          python-version: ${{ matrix.python-version }}
+      - name: Build
         run: |
-          # pick up the right pip3, hopefully
-          export PATH=/usr/share/miniconda/bin:$PATH
-          pip3 install setuptools>=42.0.0 wheel scikit-build
-          # pip3 install tensorflow==1.14.0
-          pip3 install -r requirements.txt
-          pip3 install pytest
-          export PYTHONPATH=.:..
-          echo 'fastai 1.*' >> $CONDA/conda-meta/pinned
-          conda install pytorch torchvision -c pytorch
-          conda install -c fastai -c pytorch fastai
-          python3 -m pytest -vs
+            conda info
+            pip install pytest
+            python -m pytest -vs
