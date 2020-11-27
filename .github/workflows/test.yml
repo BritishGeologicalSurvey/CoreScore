@@ -17,6 +17,15 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Build
         run: |
-            conda info
             pip install pytest
+            pip install setuptools>=42.0.0 wheel scikit-build
+            pip install -r requirements.txt
+            pip install pytest
+            export PYTHONPATH=.:..
+            echo 'fastai 1.*' >> $CONDA/conda-meta/pinned
+            conda install pytorch torchvision -c pytorch
+            conda install -c fastai -c pytorch fastai
+            
+      - name: Run the API tests
+        run: |
             python -m pytest -vs
