@@ -17,6 +17,7 @@ jobs:
           channels: conda-forge
           python-version: ${{ matrix.python-version }}
       - name: Build
+        shell: bash -l {0}
         run: |
             conda install setuptools>=42.0.0 wheel scikit-build
             conda install --file requirements.txt
@@ -27,5 +28,6 @@ jobs:
             conda install -c fastai -c pytorch fastai
             
       - name: Run the API tests
+        shell: bash -l {0}
         run: |
             python -m pytest -vs
