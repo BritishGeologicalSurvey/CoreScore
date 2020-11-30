@@ -5,25 +5,30 @@ jobs:
   test:
     # Containers must run in Linux based operating systems
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
 
       - name: Setup Conda
-        uses: goanpeca/setup-miniconda@v1
+        uses: conda-incubator/setup-miniconda@v2
         with:
           auto-update-conda: true
-
-      - name: run the API tests
+          activate-environment: test
+          python-version: 3.8
+          channels: conda-forge
+      - name: Build
         run: |
-          # pick up the right pip3, hopefully
-          export PATH=/usr/share/miniconda/bin:$PATH
-          pip3 install setuptools>=42.0.0 wheel scikit-build
-          # pip3 install tensorflow==1.14.0
-          pip3 install -r requirements.txt
-          pip3 install pytest
-          export PYTHONPATH=.:..
-          echo 'fastai 1.*' >> $CONDA/conda-meta/pinned
-          conda install pytorch torchvision -c pytorch
-          conda install -c fastai -c pytorch fastai
-          python3 -m pytest -vs
+            conda install setuptools>=42.0.0 wheel scikit-build
+            conda install --file requirements.txt
+            conda install pytest
+            export PYTHONPATH=.:..
+            echo 'fastai 1.*' >> $CONDA/conda-meta/pinned
+            conda install pytorch torchvision -c pytorch
+            conda install -c fastai -c pytorch fastai
+            
+      - name: Run the API tests
+        run: |
+            python -m pytest -vs
