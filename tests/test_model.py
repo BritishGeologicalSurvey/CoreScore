@@ -28,25 +28,45 @@ def test_create_model():
 
 
 def test_fastai_version():
+    """Check this is v1 (needed for mlflow support)"""
     major = fastai.__version__.split('.')[0]
     assert int(major) == 1
 
 
 def test_image_src():
+    """Test we can load images with test/validation split"""
     model = CoreModel(os.getcwd())
     src = model.image_src()
     assert src
 
 
+def test_resize():
+    """Test we are resizing inputs based on default/supplied size
+    """
+    model = CoreModel(os.getcwd())
+    src = model.image_src()
+    # This is a LabelList with train / valid beneath x and y attributes
+    sample = src.x.get(0)
+    orig_size = sample.size
+    new_size = model.image_resize(sample)
+    assert int(orig_size[0]/4) == new_size[0]
+
+    # Check we can overrode the value
+    new_size = model.image_resize(sample, resize=2)
+    assert int(orig_size[0]/2) == new_size[0]
+
+
 def test_image_data():
+    """Test the transforms being applied to the inputs"""
     model = CoreModel(os.getcwd())
     data = model.image_data()
     assert data
 
 
 def test_fit_one(image_tensor):
+    """Very short training run and test prediction values"""
     model = CoreModel(os.getcwd(), epochs=1)
-    learn = model.learner()
+    learn = model.learner(resize=12)
     model.fit(learn)
     # test a prediction
     _, mask, _ = learn.predict(image_tensor)

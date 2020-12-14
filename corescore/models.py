@@ -10,7 +10,6 @@ from fastai.vision.transform import get_transforms
 from fastai.vision.learner import unet_learner
 from fastai.vision.image import open_mask
 from fastai.vision.data import SegmentationItemList
-from fastai.vision import imagenet_stats
 from corescore.masks import LABELS
 
 CUDA_LAUNCH_BLOCKING = "1"  # better error reporting
@@ -32,23 +31,32 @@ class CoreModel():
         self.wd = wd
         self.pct_start = pct_start
         self.epochs = epochs
-        self.reduce_size = np.array([148, 1048])  # TODO derive from samples e.g. src_size / 6 # noqa: E501
+
+    def image_resize(self, sample, resize=4):
+        """Accepts a sample image from our training set.
+        Returns the dimensions, resized by 1/resize
+        (as a numpy array, to stay close to the original"""
+        # input dimensions are a torch.Size
+        size = sample.size
+        return np.array([int(size[0]/resize), int(size[1]/resize)])
 
     def image_src(self):
         """Load images from self.path/images"""
-        self.src = (
-            SegmentationItemList.from_folder(
-                self.path_img).split_by_rand_pct().label_from_func(
-                    self.get_y_fn, classes=LABELS))  # noqa: E501
+        self.src = (SegmentationItemList.from_folder(self.path_img).split_by_rand_pct().label_from_func(self.get_y_fn, classes=LABELS))  # noqa: E501
         self.src.train.y.create_func = partial(open_mask, div=True)
         self.src.valid.y.create_func = partial(open_mask, div=True)
         return self.src
 
-    def image_data(self):
+    def image_data(self, resize=4):
         """Load scaled-down source images as data"""
-        self.data = self.image_src().transform(
-            get_transforms(), size=self.reduce_size, tfm_y=True).databunch(
-            bs=self.batch_size, num_workers=0).normalize(imagenet_stats)  # hmm
+        data = self.image_src()
+
+        # Resize (based on dimensions of first sample
+        resize_to = self.image_resize(data.x[0], resize=resize)
+
+        self.data = data.transform(
+            get_transforms(), size=resize_to, tfm_y=True).databunch(
+            bs=self.batch_size, num_workers=0).normalize()
         return self.data
 
     def acc_rock(self, input, target):
@@ -58,10 +66,10 @@ class CoreModel():
         mask = target != LABELS.index("Void")
         return (input.argmax(dim=1)[mask] == target[mask]).float().mean()
 
-    def learner(self):
+    def learner(self, resize=4):
         """Run the UNet learner based on image data"""
         metrics = self.acc_rock
-        return unet_learner(self.image_data(),
+        return unet_learner(self.image_data(resize=resize),
                             models.resnet34,
                             metrics=metrics,
                             wd=self.wd)
