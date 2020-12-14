@@ -32,7 +32,6 @@ class CoreModel():
         self.wd = wd
         self.pct_start = pct_start
         self.epochs = epochs
-#        self.reduce_size = np.array([148, 1048])  # TODO derive from samples e.g. src_size / 6 # noqa: E501
 
     def image_resize(self, sample, resize=4):
         """Accepts a sample image from our training set.
