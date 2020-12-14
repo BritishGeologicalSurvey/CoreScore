@@ -66,7 +66,7 @@ def test_image_data():
 def test_fit_one(image_tensor):
     """Very short training run and test prediction values"""
     model = CoreModel(os.getcwd(), epochs=1)
-    learn = model.learner()
+    learn = model.learner(resize=12)
     model.fit(learn)
     # test a prediction
     _, mask, _ = learn.predict(image_tensor)

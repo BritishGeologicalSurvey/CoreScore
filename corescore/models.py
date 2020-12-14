@@ -51,12 +51,12 @@ class CoreModel():
 
     def image_data(self, resize=4):
         """Load scaled-down source images as data"""
-        self.data = self.image_src()
+        data = self.image_src()
 
         # Resize (based on dimensions of first sample
-        resize_to = self.image_resize(self.data.x[0], resize=resize)
+        resize_to = self.image_resize(data.x[0], resize=resize)
 
-        self.data.transform(
+        self.data = data.transform(
             get_transforms(), size=resize_to, tfm_y=True).databunch(
             bs=self.batch_size, num_workers=0).normalize(imagenet_stats)  # hmm
         return self.data
