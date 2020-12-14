@@ -10,7 +10,6 @@ from fastai.vision.transform import get_transforms
 from fastai.vision.learner import unet_learner
 from fastai.vision.image import open_mask
 from fastai.vision.data import SegmentationItemList
-from fastai.vision import imagenet_stats
 from corescore.masks import LABELS
 
 CUDA_LAUNCH_BLOCKING = "1"  # better error reporting
@@ -57,7 +56,7 @@ class CoreModel():
 
         self.data = data.transform(
             get_transforms(), size=resize_to, tfm_y=True).databunch(
-            bs=self.batch_size, num_workers=0).normalize(imagenet_stats)  # hmm
+            bs=self.batch_size, num_workers=0).normalize()
         return self.data
 
     def acc_rock(self, input, target):
