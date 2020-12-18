@@ -3,11 +3,10 @@ import pytest
 import fastai
 from fastai.vision.image import Image
 from skimage.io import imread, imsave
-from torch import Tensor
+from torch import Tensor, randn, randint
 from torchvision.transforms import ToTensor
 from corescore.models import CoreModel
 from corescore.masks import LABELS
-
 
 @pytest.fixture
 def image_tensor():
@@ -26,6 +25,14 @@ def test_create_model():
     model = CoreModel(os.getcwd())
     assert model
 
+@pytest.mark.parametrize("pred,target,expected", [
+    (randn((128, 2, 224, 224)), randint(0, 5, (128, 1, 224, 224)), 1/5),
+    (randn((128, 8, 224, 224)), randint(0, 10, (128, 1, 224, 224)), 1/10)])
+
+def test_acc_rock(pred, target, expected):
+    model =  CoreModel(os.getcwd())
+    acc_rock = model.acc_rock(pred, target)
+    assert acc_rock == pytest.approx(expected, abs=1e-02)
 
 def test_fastai_version():
     """Check this is v1 (needed for mlflow support)"""
