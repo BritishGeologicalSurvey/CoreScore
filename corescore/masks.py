@@ -19,7 +19,16 @@ logging.basicConfig(level=logging.INFO)
 
 # This file does all the pre-processing from the json and into actual masks
 # which then can be used directly with the unet implementation in fastai
-LABELS = ['Box', 'Rock_Fragment', 'Paper', 'Core_Plug', 'Text', 'Void']
+# We differentiate between rock fragments in Box 1 and 2 (as Corebreakout does)
+
+LABELS = [
+    'Void',
+    'Rock_Fragment',
+    'Rock_Fragment_2',
+    'Paper',
+    'Core_Plug',
+    'Text',
+    'Box']
 
 
 class CoreImageProcessor():

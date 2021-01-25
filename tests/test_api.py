@@ -24,7 +24,7 @@ client = TestClient(app)
 
 class MockModel(MagicMock):
     def predict(*args):
-        return None, ToTensor()(np.asarray([[0,1],[0,2]])), None
+        return None, ToTensor()(np.asarray([[0, 1], [0, 2]])), None
 
 
 async def load_test_model():

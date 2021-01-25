@@ -8,6 +8,7 @@ from torchvision.transforms import ToTensor
 from corescore.models import CoreModel
 from corescore.masks import LABELS
 
+
 @pytest.fixture
 def image_tensor():
     sample = 'S00128822.Cropped_Top_2_Countoured.png'
@@ -25,14 +26,15 @@ def test_create_model():
     model = CoreModel(os.getcwd())
     assert model
 
-@pytest.mark.parametrize("pred,target,expected", [
-    (randn((128, 2, 224, 224)), randint(0, 5, (128, 1, 224, 224)), 1/5),
-    (randn((128, 8, 224, 224)), randint(0, 10, (128, 1, 224, 224)), 1/10)])
 
+@pytest.mark.parametrize("pred,target,expected", [
+    (randn((128, 2, 224, 224)), randint(0, 5, (128, 1, 224, 224)), 1 / 5),
+    (randn((128, 8, 224, 224)), randint(0, 10, (128, 1, 224, 224)), 1 / 10)])
 def test_acc_rock(pred, target, expected):
-    model =  CoreModel(os.getcwd())
+    model = CoreModel(os.getcwd())
     acc_rock = model.acc_rock(pred, target)
     assert acc_rock == pytest.approx(expected, abs=1e-02)
+
 
 def test_fastai_version():
     """Check this is v1 (needed for mlflow support)"""
@@ -56,11 +58,11 @@ def test_resize():
     sample = src.x.get(0)
     orig_size = sample.size
     new_size = model.image_resize(sample)
-    assert int(orig_size[0]/4) == new_size[0]
+    assert int(orig_size[0] / 4) == new_size[0]
 
     # Check we can overrode the value
     new_size = model.image_resize(sample, resize=2)
-    assert int(orig_size[0]/2) == new_size[0]
+    assert int(orig_size[0] / 2) == new_size[0]
 
 
 def test_image_data():
