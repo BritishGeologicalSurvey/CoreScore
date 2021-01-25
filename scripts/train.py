@@ -5,10 +5,10 @@ from corescore.models import CoreModel
 from corescore.mlflowregistry import MlflowRegistry
 import mlflow
 
-def train(epochs=10, lr=0.00001, resize=8, path=os.getcwd()):
+def train(epochs=10, lr=0.00001, resize=8, batch_size=4, path=os.getcwd()):
     mlflow.fastai.autolog()
     mlflow.set_tag('model', 'corescore')
-    coremodel = CoreModel(path, epochs=epochs)
+    coremodel = CoreModel(path, epochs=epochs, batch_size=batch_size)
     unet_learn = coremodel.learner(resize=resize)
     coremodel.fit(lr=lr, learner=unet_learn)
 
@@ -24,12 +24,15 @@ if __name__ == '__main__':
     parser.add_argument('--resize',
                         default=8,
                         help="Scale image input down by this proportion")
+    parser.add_argument('--batch_size',
+                        default=4,
+                        help="Set the batch size")
 
     args = parser.parse_args()
 
     # Run the training loop
-    train(epochs=int(args.epochs), lr=float(args.lr), resize=int(args.resize))
+    train(epochs=int(args.epochs), lr=float(args.lr), resize=int(args.resize), batch_size=int(args.batch_size))
 
     # Register the model
-    #MlflowRegistry().register_model("tags.model = 'corescore'",
-    #                                name="corescore")
+    MlflowRegistry(URI).register_model("tags.model = 'corescore'",
+                                       name="corescore")
