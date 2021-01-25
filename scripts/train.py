@@ -5,6 +5,7 @@ from corescore.models import CoreModel
 from corescore.mlflowregistry import MlflowRegistry
 import mlflow
 
+
 def train(epochs=10, lr=0.00001, resize=8, batch_size=4, path=os.getcwd()):
     mlflow.fastai.autolog()
     mlflow.set_tag('model', 'corescore')
@@ -31,8 +32,12 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Run the training loop
-    train(epochs=int(args.epochs), lr=float(args.lr), resize=int(args.resize), batch_size=int(args.batch_size))
+    train(epochs=int(args.epochs),
+          lr=float(args.lr),
+          resize=int(args.resize),
+          batch_size=int(args.batch_size))
 
     # Register the model
-    MlflowRegistry(URI).register_model("tags.model = 'corescore'",
-                                       name="corescore")
+    # Picks up MLFLOW_TRACKING_URI from environment.
+    MlflowRegistry().register_model("tags.model = 'corescore'",
+                                    name="corescore")
