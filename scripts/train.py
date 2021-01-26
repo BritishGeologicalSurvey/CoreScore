@@ -1,4 +1,5 @@
 import argparse
+from time import sleep
 import os
 
 from corescore.models import CoreModel
@@ -41,3 +42,6 @@ if __name__ == '__main__':
     # Picks up MLFLOW_TRACKING_URI from environment.
     MlflowRegistry().register_model("tags.model = 'corescore'",
                                     name="corescore")
+    
+    # Long sleep to ensure model version is created
+    sleep(300)
