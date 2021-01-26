@@ -33,7 +33,7 @@ def test_create_model():
 def test_acc_rock(pred, target, expected):
     model = CoreModel(os.getcwd())
     acc_rock = model.acc_rock(pred, target)
-    assert acc_rock == pytest.approx(expected, abs=1e-02)
+    assert acc_rock == pytest.approx(expected, abs=1e-01)
 
 
 def test_fastai_version():
