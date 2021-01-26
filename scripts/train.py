@@ -1,5 +1,5 @@
 import argparse
-from time import sleepvi 
+from time import sleep
 import os
 
 from corescore.models import CoreModel
