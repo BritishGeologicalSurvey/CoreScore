@@ -2,12 +2,12 @@
 from skimage.measure import label, regionprops
 from corescore.masks import LABELS
 
-METRICS = ["relative_area", "fragment_perimeter",
-           "average_perimeter", "total_fragments",
-           "absolute_area", "perimeter_complexity"]
+MEASURES = ["relative_area", "fragment_perimeter",
+            "average_perimeter", "total_fragments",
+            "absolute_area", "perimeter_complexity"]
 
 
-class Metrics():
+class QualityIndex():
     def __init__(self, mask_arr):
         self.image_mask = mask_arr
         self.labels = self.rock_labels_only(mask_arr)
@@ -73,7 +73,7 @@ class Metrics():
     def parameters(self):
         """Return all the useful metrics for Core Quality Index"""
         params = {}
-        for param in METRICS:
+        for param in MEASURES:
             if(getattr(self, param)() > 1):
                 params[param] = round(getattr(self, param)(), 2)
             else:

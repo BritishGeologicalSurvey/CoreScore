@@ -2,7 +2,7 @@ import os
 import pytest
 from skimage.io import imread
 from corescore.masks import CoreImageProcessor
-from corescore.metrics import Metrics
+from corescore.quality import QualityIndex
 
 
 @pytest.fixture
@@ -25,5 +25,7 @@ def test_load_processor(image_dir, labels):
     for image in coreProcessor.core_types:
         mask_file = coreProcessor.processImage(image)
         im_arr = imread(mask_file)
-        metrics = Metrics(im_arr)
-        print(metrics.parameters())
+        measures = QualityIndex(im_arr)
+        params = measures.parameters()
+        assert params
+        assert 'total_fragments' in params
