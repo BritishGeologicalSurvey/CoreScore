@@ -43,13 +43,31 @@ class MlflowRegistry(MlflowClient):
             registered_models.append(rm)
         return registered_models
 
-    def load_model(self, name):
-        """Load model from registry based on name"""
-        models = self.list_models()
-        try:
-            latest = list(filter(lambda model: model.name == name, models))[0]
-        except IndexError:
-            raise MlflowRegistryError(f"Model {name} does not exist")
-        model_path = os.path.join(latest.latest_versions[0].source, 'model')
-        model = mlflow.fastai.load_model(model_path)
-        return model
+    def _find_model(self, name=None, version=None):
+        """ Find registered model based on supplied arguments
+            Return model's path """
+        filter_str = f"name='{name}'"
+        if version:
+             models = self.client.search_model_versions(filter_string=filter_str)
+             if not models:
+                 raise MlflowRegistryError(f'Model named {name} does not exist')
+             model = list(filter(lambda model: model.version == version,  models))
+             try:
+                 model_path = os.path.join(model[0].source, 'model')
+             except IndexError:
+                raise MlflowRegistryError((f'Model named {name},'
+                                           f'version {version} does not exist')) from None
+        else:
+            try:
+               models = self.list_models()
+               latest = list(filter(lambda model: model.name == name, models))[0]  
+            except IndexError:
+               raise MlflowRegistryError(f'Model named {name} does not exist') from None
+            model_path = os.path.join(latest.latest_versions[0].source, 'model')
+        return model_path
+	
+    def load_model(self, name=None, version=None):
+         """ Load registered model based on supplied arguments """
+         model_path = self._find_model(name=name, version=version)
+         return mlflow.pyfunc.load_model(model_path)
+         
