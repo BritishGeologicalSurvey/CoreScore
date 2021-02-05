@@ -8,16 +8,15 @@ class MlflowRegistryError(Exception):
 
 
 class MlflowRegistry(MlflowClient):
-    def __init__(self, registry_uri=None, *args, **kwargs):
-        self.client = MlflowClient(registry_uri)
-        super().__init__(registry_uri=registry_uri, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def list_experiments(self, query):
         """Query the mlflow api and return
            a list of experiment dictionaries"""
         runs_list = []
-        search_result = self.client.search_runs(experiment_ids="0",
-                                                filter_string=query)
+        search_result = self.search_runs(experiment_ids="0",
+                                         filter_string=query)
         for run in search_result:
             runs_list.append(run.to_dictionary())
         return runs_list
@@ -39,7 +38,7 @@ class MlflowRegistry(MlflowClient):
     def list_models(self):
         """Return a list of registered models"""
         registered_models = []
-        for rm in self.client.list_registered_models():
+        for rm in self.list_registered_models():
             registered_models.append(rm)
         return registered_models
 
@@ -48,7 +47,7 @@ class MlflowRegistry(MlflowClient):
             Return model's path """
         filter_str = f"name='{name}'"
         if version:
-             models = self.client.search_model_versions(filter_string=filter_str)
+             models = self.search_model_versions(filter_string=filter_str)
              if not models:
                  raise MlflowRegistryError(f'Model named {name} does not exist')
              model = list(filter(lambda model: model.version == version,  models))
