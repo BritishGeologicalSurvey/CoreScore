@@ -8,9 +8,9 @@ class MlflowRegistryError(Exception):
 
 
 class MlflowRegistry(MlflowClient):
-    def __init__(self, client=None, *args, **kwargs):
-        self.client = MlflowClient(client)
-        super().__init__(*args, **kwargs)
+    def __init__(self, registry_uri=None, *args, **kwargs):
+        self.client = MlflowClient(registry_uri)
+        super().__init__(registry_uri=registry_uri, *args, **kwargs)
 
     def list_experiments(self, query):
         """Query the mlflow api and return
