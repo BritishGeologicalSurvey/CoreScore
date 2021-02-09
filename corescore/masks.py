@@ -32,7 +32,7 @@ LABELS = [
 
 
 class CoreImageProcessor():
-    '''
+    """
         Class that handles all the preprocessing to make the image
         masks and lower the resolution of the images as defined by a
         constant in the file - some things need to be reworked -
@@ -41,18 +41,16 @@ class CoreImageProcessor():
         figured out not via constants
 
         Class takes in the image directory as a string
-    '''
-
-    # Map of greyscale colours to use as masks
-    masks = {value: index for (index, value) in enumerate(LABELS)}
+    """
 
     def __init__(self, imageDirectory,
                  labels="Core_labels.json",
+                 merge_fragment_labels=None,
                  mask_labels=[]):
         """Takes an image directory,
-        a set of associated labels,
-        and optional list of labels to use for masks
-        (defaults to "Rock_Fragment")
+        A set of associated labels for each image filename,
+        Optional list of labels to use for masks,
+        Optional whether to label Rock_Fragment and Rock_Fragment_2 together
         """
 
         self.path = os.fspath(Path(imageDirectory))
@@ -63,6 +61,12 @@ class CoreImageProcessor():
             self.mask_labels = mask_labels
         else:
             self.mask_labels = LABELS
+
+        # Map of greyscale colours to use as masks
+        self.masks = {value: index for (index, value) in enumerate(LABELS)}
+
+        if merge_fragment_labels:
+            self.masks['Rock_Fragment_2'] = self.masks['Rock_Fragment']
 
     def getImageNames(self, image):
         """Returns image name from LabelBox compat data"""
