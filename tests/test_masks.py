@@ -56,3 +56,10 @@ def test_load_labeltool(image_dir, labeltool_labels):
         if has_data:
             total += 1
     assert total > 1
+
+
+def test_merge_labels():
+    coreProc = CoreImageProcessor('Images', merge_fragment_labels=True)
+    assert coreProc.masks['Rock_Fragment'] == coreProc.masks['Rock_Fragment_2']
+    coreProc = CoreImageProcessor('Images')
+    assert coreProc.masks['Rock_Fragment'] != coreProc.masks['Rock_Fragment_2']
