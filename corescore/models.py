@@ -6,10 +6,11 @@ import numpy as np
 import mlflow
 import mlflow.fastai
 from fastai.vision import models
-from fastai.vision.transform import get_transforms
-from fastai.vision.learner import unet_learner
-from fastai.vision.image import open_mask
-from fastai.vision.data import SegmentationItemList
+#from fastai.vision.transform import get_transforms
+#from fastai.vision.learner import unet_learner
+#from fastai.vision.image import open_mask
+#from fastai.vision.data import SegmentationItemList
+from fastai.vision.all import *
 from corescore.masks import LABELS
 
 CUDA_LAUNCH_BLOCKING = "1"  # better error reporting
