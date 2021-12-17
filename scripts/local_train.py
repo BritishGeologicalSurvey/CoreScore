@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Sep 30 11:50:12 2021
-
-@author: Alex
-"""
-
 import argparse
 from time import sleep
 import os
@@ -13,6 +6,8 @@ from corescore.models import CoreModel
 
 
 def train(epochs=10, lr=0.00001, resize=8, batch_size=4, path=os.getcwd()):
+#    mlflow.fastai.autolog()
+#    mlflow.set_tag('model', 'corescore')
 
     coremodel = CoreModel(path, epochs=epochs, batch_size=batch_size)
     unet_learn = coremodel.learner(resize=resize)
@@ -42,7 +37,3 @@ if __name__ == '__main__':
           resize=int(args.resize),
           batch_size=int(args.batch_size))
 
-
-    
-    # Long sleep to ensure model version is created
-    sleep(300)
