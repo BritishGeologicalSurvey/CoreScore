@@ -10,6 +10,7 @@ from fastai.vision.transform import get_transforms
 from fastai.vision.learner import unet_learner
 from fastai.vision.image import open_mask
 from fastai.vision.data import SegmentationItemList
+from fastai.callbacks import *
 from corescore.masks import LABELS
 
 CUDA_LAUNCH_BLOCKING = "1"  # better error reporting
@@ -84,6 +85,8 @@ class CoreModel():
         learner.fit_one_cycle(self.epochs,
                               slice(lr),
                               pct_start=self.pct_start)
+       
+        learner.save('/home/ahall/CoreScore/tmp')
 
     def get_y_fn(self, x):
         """Return a file path to a mask given an image path"""
@@ -91,4 +94,7 @@ class CoreModel():
 
     def save(self):
         """Save the model"""
-        mlflow.fastai.log_model(self.learner(), "model")
+        #mlflow.fastai.log_model(self.learner(), "model")
+        
+
+
