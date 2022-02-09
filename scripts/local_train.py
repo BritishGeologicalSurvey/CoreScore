@@ -12,7 +12,7 @@ import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="torch.nn.functional")
 
 
-def train(epochs=2, lr=0.00001, resize=8, batch_size=4, path=os.getcwd()):
+def train(epochs=2, lr=0.00001, resize=8, batch_size=1, path=os.getcwd()):
 #    mlflow.fastai.autolog()
 #    mlflow.set_tag('model', 'corescore')
     coremodel = CoreModel(path, epochs=epochs, batch_size=batch_size)
@@ -33,7 +33,7 @@ if __name__ == '__main__':
                         default=8,
                         help="Scale image input down by this proportion")
     parser.add_argument('--batch_size',
-                        default=4,
+                        default=1,
                         help="Set the batch size")
 
     args = parser.parse_args()
