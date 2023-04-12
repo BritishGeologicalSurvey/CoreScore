@@ -1,7 +1,11 @@
 fastapi
+fastai
 numpy
 mlflow
-opencv
+opencv-python
+pandas
 pillow
+pydantic
 scipy
 scikit-image
+torchvision

@@ -3,6 +3,8 @@ from pathlib import Path
 from functools import partial
 
 import numpy as np
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 import mlflow
 import mlflow.fastai
 from fastai.vision import models
@@ -12,7 +14,7 @@ from fastai.vision.learner import unet_learner
 from fastai.vision.image import open_mask
 from fastai.vision.data import SegmentationItemList
 from fastai.callbacks import *
-from fastai.vision.all import *
+# from fastai.vision.all import *
 
 from corescore.masks import LABELS
 
@@ -89,7 +91,7 @@ class CoreModel():
                               slice(lr),
                               pct_start=self.pct_start)
        
-        learner.save('/home/ahall/CoreScore/tmp')
+        learner.save('C:/Users/mathai/Documents/Gitlab_Projects/CoreScore/tmp')
 
     def get_y_fn(self, x):
         """Return a file path to a mask given an image path"""

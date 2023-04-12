@@ -14,15 +14,10 @@ from corescore.masks import CoreImageProcessor
 def process_images(image_dir, label):
     """Create masks for labelled images.
     For now, merge rock fragment labels from both core boxes"""
-    
-    
-        
     coreProcessor = CoreImageProcessor("Images",
                                        labels=label,
                                        merge_fragment_labels=True)
-        
-        
-        
+
     image = coreProcessor.core_types
     mask_file = coreProcessor.processImage(image)
 
@@ -39,7 +34,6 @@ if __name__ == '__main__':
     labels_dir = args.labels_dir
     if not labels_dir:
         labels_dir = 'train_labels'
-    
     
     for f in os.listdir(labels_dir):
         

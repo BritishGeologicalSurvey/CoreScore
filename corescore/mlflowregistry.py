@@ -47,26 +47,26 @@ class MlflowRegistry(MlflowClient):
             Return model's path """
         filter_str = f"name='{name}'"
         if version:
-             models = self.search_model_versions(filter_string=filter_str)
-             if not models:
-                 raise MlflowRegistryError(f'Model named {name} does not exist')
-             model = list(filter(lambda model: model.version == version,  models))
-             try:
-                 model_path = os.path.join(model[0].source, 'model')
-             except IndexError:
-                raise MlflowRegistryError((f'Model named {name},'
-                                           f'version {version} does not exist')) from None
+            models = self.search_model_versions(filter_string=filter_str)
+            if not models:
+                raise MlflowRegistryError(f'Model named {name} does not exist')
+            model = list(filter(lambda model: model.version == version,  models))
+            try:
+                model_path = os.path.join(model[0].source, 'model')
+            except IndexError:
+               raise MlflowRegistryError((f'Model named {name},'
+                                          f'version {version} does not exist')) from None
         else:
             try:
-               models = self.list_models()
-               latest = list(filter(lambda model: model.name == name, models))[0]  
+                models = self.list_models()
+                latest = list(filter(lambda model: model.name == name, models))[0]
             except IndexError:
-               raise MlflowRegistryError(f'Model named {name} does not exist') from None
+                raise MlflowRegistryError(f'Model named {name} does not exist') from None
             model_path = os.path.join(latest.latest_versions[0].source, 'model')
         return model_path
-	
+
     def load_model(self, name=None, version=None):
-         """ Load registered model based on supplied arguments """
-         model_path = self._find_model(name=name, version=version)
-         return mlflow.pyfunc.load_model(model_path)
-         
+        """ Load registered model based on supplied arguments """
+        model_path = self._find_model(name=name, version=version)
+
+        return mlflow.pyfunc.load_model(model_path)
