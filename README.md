@@ -58,6 +58,64 @@ The final output from the images themselves looks like what is below- with varyi
 ![Example of fully processed image](Images/S00128821.Cropped_Top_2_Countoured.png)
 
 
+## CoreScore Application Flowchart
+```mermaid
+flowchart TD
+id_1[("Large image store ")]
+id_2[("Unlabelled images")]
+id_3[("Labelled images")]
+id_4_1["Create masks for training <br>
+make_masks.py, using masks.py"]
+id_4_2["tests.py <br> 
+Run trained model on test data"]
+id_4[" local_train.py <br>
+Train ML model (unet Resnet54 CNN)"]
+id_5["Image Process request"]
+id_6["Trained ML model"]
+id_7["ML output API"]
+id_8["Client side"]
+id_9["Image labelling tool"]
+id_10["ML manual checks <br>
+accuracy, IoU, check against <br> previous test results <br> using
+get_metrics.py, get_test_accuracy.py"]
+id_11["Download results"]
+id_12["Results feedback"]
+
+subgraph data_store["Large Image Store"]
+id_1 --> id_2
+id_1 --> id_3
+end
+
+subgraph ml_model ["Production ML Model"]
+id_6
+end
+
+subgraph im_lab ["Image Labelling"]
+id_2 --> id_9
+id_9 --> id_3
+end
+
+subgraph ml_train [Train / Update Machine Learning model]
+id_3 -->|All labelled images| id_4_1
+id_4_1 --> id_4
+id_4 --> id_4_2
+id_4_2 --> id_10
+id_10 -->|Checks pass <br> Updated model| id_6
+id_10 -->|Checks fail <br> New model retrain| id_4
+end
+
+subgraph cs_app [CoreScore Application]
+id_8 -->id_5
+id_5 -->|large image API| id_1
+id_1 -->|downsampled image| id_6
+id_6 --> id_7
+id_7 -->|Output to client side| id_8
+id_8 --> id_11
+id_8 --> id_12
+end
+
+```
+
 ## Contributors
 
  * Zayad Al Zaher

@@ -7,8 +7,8 @@ def process_images(image_dir, labels):
     """Create masks for labelled images.
     For now, merge rock fragment labels from both core boxes"""
     coreProcessor = CoreImageProcessor("Images",
-                                        labels=labels,
-                                        merge_fragment_labels=True)
+                                       labels=labels,
+                                       merge_fragment_labels=True)
     for image in coreProcessor.core_types:
         mask_file = coreProcessor.processImage(image)
 

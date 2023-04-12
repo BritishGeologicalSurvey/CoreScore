@@ -5,6 +5,7 @@ Created on Fri Dec 10 17:03:08 2021
 @author: Alex
 """
 
+# TODO, needs to be made PEP8 compliant
 
 import cv2
 
@@ -60,15 +61,15 @@ for f in os.listdir(TEST_DIR):
     
     pred = image.imread(os.path.join(PREDICTIONS_DIR, f_name + '.bmp'))
     original = image.imread(os.path.join(TEST_DIR, f_name + '.jpg'))
-    #upscale prediction to match original
+    # upscale prediction to match original
     pred = cv2.resize(pred, dsize = (np.shape(original)[1], np.shape(original)[0]), interpolation = cv2.INTER_NEAREST)
     
     if(INFER_ONLY == False):
         mask = image.imread(os.path.join(MASK_DIR, f_name + '.png'))
         
-        #resize prediction to the mask - there can sometimes be a minor disparity between the mask and original
+        # resize prediction to the mask - there can sometimes be a minor disparity between the mask and original
         pred = cv2.resize(pred, dsize = (np.shape(mask)[1], np.shape(mask)[0]), interpolation = cv2.INTER_NEAREST)
-        #convert mask to integers
+        # convert mask to integers
         mask=mask*255
         mask=mask.astype(int)
         

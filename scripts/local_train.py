@@ -1,20 +1,16 @@
-
 import argparse
-from time import sleep
 import os
-
 from corescore.models import CoreModel
-#from corescore.mlflowregistry import MlflowRegistry
-#import mlflow
-
-
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="torch.nn.functional")
 
+test = os.getcwd()
 
 def train(epochs=2, lr=0.00001, resize=8, batch_size=1, path=os.getcwd()):
-#    mlflow.fastai.autolog()
-#    mlflow.set_tag('model', 'corescore')
+    #    mlflow.fastai.autolog()
+    #    mlflow.set_tag('model', 'corescore')
+
+    # test = os.getcwd()
     coremodel = CoreModel(path, epochs=epochs, batch_size=batch_size)
     unet_learn = coremodel.learner(resize=resize)
     coremodel.fit(lr=lr, learner=unet_learn)
@@ -46,9 +42,8 @@ if __name__ == '__main__':
 
     # Register the model
     # Picks up MLFLOW_TRACKING_URI from environment.
-#    MlflowRegistry().register_model("tags.model = 'corescore'",
-#                                    name="corescore")
+    #    MlflowRegistry().register_model("tags.model = 'corescore'",
+    #                                    name="corescore")
     
     # Long sleep to ensure model version is created
-   # sleep(300)
-
+    # sleep(300)

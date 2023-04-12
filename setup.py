@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="corescore", # Replace with your own username
+    name="corescore",
     version="0.0.2",
     author="Zayad AlZaher, Jo Walsh",
     author_email="jowalsh@bgs.ac.uk",
@@ -20,4 +20,3 @@ setuptools.setup(
     ],
     python_requires='>=3.6',
 )
-
